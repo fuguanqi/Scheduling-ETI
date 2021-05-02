@@ -31,35 +31,35 @@ def time_block(jobs, para_due_dates, para_processing_times, para_earliness_penal
 
     # minimize objective
     opt_model.minimize(objective_function)
-    print("**************** Block Timing ****************")
+    # print("**************** Block Timing ****************")
     # opt_model.print_information()
     opt_model.solve()
 
-    print("        ******** The jobs in this block are:********        ")
-    for i in jobs:
-        print("job ", i)
+    # print("        ******** The jobs in this block are:********        ")
+    # for i in jobs:
+        # print("job ", i)
     # print("        ****** The due dates are ******        ")
     # for i in para_due_dates:
     #     print(i)
     # print("        ****** The proceccing times are: ******        ")
     # for i in para_processing_times:
     #     print(i)
-    print("        ******************************        ")
-    opt_model.report()
-    print("        ******************************        ")
-    print(opt_model.print_solution(print_zeros=False))
+    # print("        ******************************        ")
+    # opt_model.report()
+    # print("        ******************************        ")
+    # print(opt_model.print_solution(print_zeros=False))
     # print("        ******************************        ")
     # print(opt_model.get_statistics())
-    print("        ******************************        ")
-    print(opt_model.get_solve_details())
-    print("        ******************************        ")
+    # print("        ******************************        ")
+    # print(opt_model.get_solve_details())
+    # print("        ******************************        ")
 
     block_end = opt_model.solution.get_value("end_time_of_job_" + str(n - 1))
     block_start = opt_model.solution.get_value("end_time_of_job_0") - para_processing_times[jobs[0]]
     et_penalty = opt_model.solution.get_objective_value()
 
-    print("block start:", block_start)
-    print("block end:", block_end)
-    print("E/T penalty:", et_penalty)
-    print("**************** Block Timing Finished ****************")
+    # print("block start:", block_start)
+    # print("block end:", block_end)
+    # print("E/T penalty:", et_penalty)
+    # print("**************** Block Timing Finished ****************")
     return block_start, block_end, et_penalty

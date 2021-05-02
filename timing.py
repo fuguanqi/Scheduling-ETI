@@ -37,16 +37,16 @@ def opt_ET(jobs, para_due_dates, para_processing_times, para_earliness_penalties
     opt_model.solve()
 
     # print("     ******** The jobs in this schedule are:********     ")
-    for i in jobs:
-        print("job ", i)
+    # for i in jobs:
+        # print("job ", i)
     # print("        ******************************        ")
-    opt_model.report()
+    # opt_model.report()
     # print("        ******************************        ")
-    print(opt_model.print_solution(print_zeros=False))
+    # print(opt_model.print_solution(print_zeros=False))
     # print("        ******************************        ")
     # print(opt_model.get_statistics())
     # print("        ******************************        ")
-    print(opt_model.get_solve_details())
+    # print(opt_model.get_solve_details())
     # print("        ******************************        ")
 
     head_last = n - 1
