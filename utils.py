@@ -23,18 +23,18 @@ class Problem:
 
 def generate_problem(n=5, seed=101):
     random.seed(seed)
-    a = random.random() * 2
-    b = random.random() * 5000
+    a = round(random.random() * 2, 4)
+    b = round(random.random() * 5, 4)
     due_dates = list()
     processing_times = list()
     earliness_penalties = list()
     tardiness_penalties = list()
 
     for i in range(n):
-        due_dates.append(100*n/5 + random.random() * 55 * n/5)
-        processing_times.append(random.random() * 10)
-        earliness_penalties.append(random.random() * 4)
-        tardiness_penalties.append(random.random() * 6)
+        due_dates.append(round(100 * n / 5 + random.random() * 55 * n / 5, 4))
+        processing_times.append(round(random.random() * 10,4))
+        earliness_penalties.append(round(random.random() * 4,4))
+        tardiness_penalties.append(round(random.random() * 6,4))
 
     # # The variable part of idleness penalty is absorbed by the first job and the last job.
     # earliness_penalties[0] = earliness_penalties[0] + a
@@ -47,5 +47,7 @@ def generate_problem(n=5, seed=101):
     for i in range(n):
         print("job ", i, ", due at:", due_dates[i], ", processed for :", processing_times[i], ", early penalty:",
               earliness_penalties[i], ",tardi penalty:", tardiness_penalties[i])
+    print("a= ", a)
+    print("b= ", b)
     print("**************** Genrate Problem Finishied ****************")
     return Problem(n, a, b, due_dates, processing_times, earliness_penalties, tardiness_penalties)

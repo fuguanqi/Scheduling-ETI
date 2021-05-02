@@ -55,7 +55,7 @@ def time_block(jobs, para_due_dates, para_processing_times, para_earliness_penal
     print("        ******************************        ")
 
     block_end = opt_model.solution.get_value("end_time_of_job_" + str(n - 1))
-    block_start = opt_model.solution.get_value("end_time_of_job_0") - para_processing_times[0]
+    block_start = opt_model.solution.get_value("end_time_of_job_0") - para_processing_times[jobs[0]]
     et_penalty = opt_model.solution.get_objective_value()
 
     print("block start:", block_start)
