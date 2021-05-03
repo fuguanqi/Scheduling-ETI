@@ -22,7 +22,7 @@ class Problem:
 
 
 def generate_problem(n=5, seed=101):
-    random.seed(seed)
+    # random.seed(seed)
     a = round(random.random() * 2, 4)
     b = round(random.random() * 5, 4)
     due_dates = list()

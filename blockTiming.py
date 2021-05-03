@@ -2,13 +2,37 @@ import docplex.mp.model as cpx
 import utils
 
 
+class BT_solution:
+    def __init__(self):
+        self.block_start = -1
+        self.block_end = -1
+        self.et_penalty = -1
+
+
+def init_BT_memo(n, para_due_dates, para_processing_times):
+    memo_BT = list()
+    for i in range(n):
+        row = list()
+        memo_BT.append(row)
+        for j in range(n):
+            row.append(BT_solution())
+            if i == j:
+                memo_BT[i][j].block_start = para_due_dates[i] - para_processing_times[i]
+                memo_BT[i][j].block_end = para_due_dates[i]
+                memo_BT[i][j].et_penalty = 0
+    return memo_BT
+
+
 # jobs as list
-def time_block(jobs, para_due_dates, para_processing_times, para_earliness_penalties, para_tardiness_penalties):
+def time_block(memoBT, jobs, first, last, para_due_dates, para_processing_times, para_earliness_penalties,
+               para_tardiness_penalties):
+    if memoBT[first][last].block_start >= 0:
+        return memoBT[first][last].block_start, memoBT[first][last].block_end, memoBT[first][last].et_penalty
+
     # Create model
     opt_model = cpx.Model(name="Block Timing Model")
 
-    n = len(jobs)
-
+    n = last - first + 1
     # Decision parameters
     end_times = opt_model.continuous_var_list(n, lb=0, ub=utils.BIG_NUMBER, name="end_time_of_job_%s")
     earlis = opt_model.continuous_var_list(n, lb=0, ub=utils.BIG_NUMBER, name="earliness_of_job_%s")
@@ -16,17 +40,18 @@ def time_block(jobs, para_due_dates, para_processing_times, para_earliness_penal
 
     # constraint
     opt_model.add_constraints_(
-        end_times[i] + para_processing_times[jobs[i + 1]] == end_times[i + 1] for i in range(n - 1)
+        end_times[i] + para_processing_times[jobs[first + i + 1]] == end_times[i + 1] for i in range(n - 1)
     )
 
     # constraint
     opt_model.add_constraints_(
-        end_times[i] + earlis[i] - tardis[i] == para_due_dates[jobs[i]] for i in range(n)
+        end_times[i] + earlis[i] - tardis[i] == para_due_dates[jobs[first + i]] for i in range(n)
     )
 
     # Objective function
     objective_function = opt_model.sum(
-        earlis[i] * para_earliness_penalties[jobs[i]] + tardis[i] * para_tardiness_penalties[jobs[i]] for i in range(n)
+        earlis[i] * para_earliness_penalties[jobs[first + i]] + tardis[i] * para_tardiness_penalties[jobs[first + i]]
+        for i in range(n)
     )
 
     # minimize objective
@@ -35,28 +60,13 @@ def time_block(jobs, para_due_dates, para_processing_times, para_earliness_penal
     # opt_model.print_information()
     opt_model.solve()
 
-    # print("        ******** The jobs in this block are:********        ")
-    # for i in jobs:
-        # print("job ", i)
-    # print("        ****** The due dates are ******        ")
-    # for i in para_due_dates:
-    #     print(i)
-    # print("        ****** The proceccing times are: ******        ")
-    # for i in para_processing_times:
-    #     print(i)
-    # print("        ******************************        ")
-    # opt_model.report()
-    # print("        ******************************        ")
-    # print(opt_model.print_solution(print_zeros=False))
-    # print("        ******************************        ")
-    # print(opt_model.get_statistics())
-    # print("        ******************************        ")
-    # print(opt_model.get_solve_details())
-    # print("        ******************************        ")
-
     block_end = opt_model.solution.get_value("end_time_of_job_" + str(n - 1))
-    block_start = opt_model.solution.get_value("end_time_of_job_0") - para_processing_times[jobs[0]]
+    block_start = opt_model.solution.get_value("end_time_of_job_0") - para_processing_times[jobs[first]]
     et_penalty = opt_model.solution.get_objective_value()
+
+    memoBT[first][last].block_start = block_start
+    memoBT[first][last].block_end = block_end
+    memoBT[first][last].et_penalty = et_penalty
 
     # print("block start:", block_start)
     # print("block end:", block_end)
