@@ -117,9 +117,10 @@ def opt_ET(memo_ET, jobs, first, last, para_due_dates, para_processing_times, pa
             break
 
     et_penalty = opt_model.solution.get_objective_value()
-    # print("ET: head last:", head_last)
-    # print("ET: tail first:", tail_first)
-    # print("************** E/T Problem Solving Finished **************")
+    memo_ET[first][last].head_last = head_last
+    memo_ET[first][last].tail_first = tail_first
+    memo_ET[first][last].tail_start = tail_start
+    memo_ET[first][last].et_penalty = et_penalty
 
     return head_last, tail_first, tail_start, et_penalty
 
@@ -194,8 +195,11 @@ def dp(memoBT, memo_ET, memo_ETI, head_last, tail_first, jobs, first, last, b, p
 def opt_ETI(memoBT, memo_ET, memo_ETI, uper_bound, jobs, first, last, b, para_due_dates, para_processing_times,
             para_earliness_penalties,
             para_tardiness_penalties):
-    if len(memo_ETI[first][last].block_lasts) > 0:
-        return memo_ETI[first][last].block_lasts, memo_ETI[first][last].end_times, memo_ETI[first][last].eti_penalty
+    if memo_ETI[first][last].eti_penalty >= 0:
+        eti_penalty=memo_ETI[first][last].eti_penalty
+        if memo_ETI[first][last].end_times[last] >= uper_bound:
+            eti_penalty = utils.BIG_NUMBER
+        return list(memo_ETI[first][last].block_lasts), list(memo_ETI[first][last].end_times), eti_penalty
     block_lasts = list()
     end_times = list()
     eti_penalty = 0
@@ -217,6 +221,9 @@ def opt_ETI(memoBT, memo_ET, memo_ETI, uper_bound, jobs, first, last, b, para_du
                                                  para_due_dates,
                                                  para_processing_times, para_earliness_penalties,
                                                  para_tardiness_penalties)
+    memo_ETI[first][last].block_lasts = list(block_lasts)
+    memo_ETI[first][last].end_times = list(end_times)
+    memo_ETI[first][last].eti_penalty = eti_penalty
     if end_times[last] >= uper_bound:
         eti_penalty = utils.BIG_NUMBER
     return block_lasts, end_times, eti_penalty
