@@ -18,7 +18,8 @@ class ETI_solution:
         self.eti_penalty = -1
 
 
-def init_ET_memo(n, para_due_dates, para_processing_times):
+def init_ET_memo(jobs,para_due_dates, para_processing_times):
+    n=len(jobs)
     memo_ET = list()
     for i in range(n):
         row = list()
@@ -28,12 +29,13 @@ def init_ET_memo(n, para_due_dates, para_processing_times):
             if i == j:
                 memo_ET[i][i].head_last = 0
                 memo_ET[i][i].tail_first = 0
-                memo_ET[i][i].tail_start = para_due_dates[i] - para_processing_times[i]
+                memo_ET[i][i].tail_start = para_due_dates[jobs[i]] - para_processing_times[jobs[i]]
                 memo_ET[i][i].et_penalty = 0
     return memo_ET
 
 
-def init_ETI_memo(n, para_due_dates):
+def init_ETI_memo(jobs, para_due_dates):
+    n=len(jobs)
     memo_ETI = list()
     for i in range(n):
         row = list()
@@ -42,7 +44,7 @@ def init_ETI_memo(n, para_due_dates):
             row.append(ETI_solution())
             if i == j:
                 memo_ETI[i][i].block_lasts = [0]
-                memo_ETI[i][i].end_times = [para_due_dates[i]]
+                memo_ETI[i][i].end_times = [para_due_dates[jobs[i]]]
                 memo_ETI[i][i].eti_penalty = 0
     return memo_ETI
 
@@ -54,6 +56,7 @@ def opt_ET(memo_ET, jobs, first, last, para_due_dates, para_processing_times, pa
                memo_ET[first][last].et_penalty
     # Create model
     opt_model = cpx.Model(name="Calculate E/T Model")
+    opt_model.parameters.simplex.tolerances.feasibility = 0.0000001
 
     n = last - first + 1
 
@@ -218,8 +221,7 @@ def opt_ETI(memoBT, memo_ET, memo_ETI, uper_bound, jobs, first, last, b, para_du
 
     else:
         block_lasts, end_times, eti_penalty = dp(memoBT, memo_ET, memo_ETI, head_last, tail_first, jobs, first, last, b,
-                                                 para_due_dates,
-                                                 para_processing_times, para_earliness_penalties,
+                                                 para_due_dates, para_processing_times, para_earliness_penalties,
                                                  para_tardiness_penalties)
     memo_ETI[first][last].block_lasts = list(block_lasts)
     memo_ETI[first][last].end_times = list(end_times)

@@ -9,7 +9,8 @@ class BT_solution:
         self.et_penalty = -1
 
 
-def init_BT_memo(n, para_due_dates, para_processing_times):
+def init_BT_memo(jobs, para_due_dates, para_processing_times):
+    n=len(jobs)
     memo_BT = list()
     for i in range(n):
         row = list()
@@ -17,8 +18,8 @@ def init_BT_memo(n, para_due_dates, para_processing_times):
         for j in range(n):
             row.append(BT_solution())
             if i == j:
-                memo_BT[i][j].block_start = para_due_dates[i] - para_processing_times[i]
-                memo_BT[i][j].block_end = para_due_dates[i]
+                memo_BT[i][j].block_start = para_due_dates[jobs[i]] - para_processing_times[jobs[i]]
+                memo_BT[i][j].block_end = para_due_dates[jobs[i]]
                 memo_BT[i][j].et_penalty = 0
     return memo_BT
 
@@ -31,6 +32,7 @@ def time_block(memoBT, jobs, first, last, para_due_dates, para_processing_times,
 
     # Create model
     opt_model = cpx.Model(name="Block Timing Model")
+    opt_model.parameters.simplex.tolerances.feasibility = 0.0000001
 
     n = last - first + 1
     # Decision parameters
