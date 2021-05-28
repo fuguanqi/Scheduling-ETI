@@ -1,8 +1,11 @@
+import numpy as np
+
 import utils as utils
 import time
 import test
 import blockTiming as bt
 import timing as timing
+from GA import GA_BASIC
 
 
 def run1():
@@ -27,8 +30,7 @@ def run1():
     memo_ET = timing.init_ET_memo(jobs, problem.due_dates, problem.processing_times)
     memo_ETI = timing.init_ETI_memo(jobs, problem.due_dates)
     block_lasts, end_times, eti_penalty1 = timing.opt_ETI(memo_BT, memo_ET, memo_ETI, utils.BIG_NUMBER, jobs, 0, n - 1,
-                                                          problem.b, problem.due_dates, problem.processing_times,
-                                                          problem.earliness_penalties, problem.tardiness_penalties)
+                                                          problem)
     end = time.process_time()
     run_time1 = end - start
     # print("**************** Main ****************")
@@ -42,18 +44,18 @@ def run1():
     # print("overall penalty of DP:", eti_penalty1)
 
     start = time.process_time()
-    eti_penalty2, test_model = test.test_eti(jobs, problem.b, problem.due_dates, problem.processing_times,
+    eti_penalty2, test_model = test.test_DP(jobs, problem.b, problem.due_dates, problem.processing_times,
                                              problem.earliness_penalties, problem.tardiness_penalties)
     end = time.process_time()
     run_time2 = end - start
-    # print("*********  DP eti_penalty:   *********")
-    # print("overall penalty of DP:", eti_penalty1)
-    # print("*********  DP runtime:   *********")
-    # print(run_time1)
-    # print("*********  CPLEX eti_penalty:   *********")
-    # print("overall penalty of CPLEX:", eti_penalty2)
-    # print("*********  CPLEX runtime:   *********")
-    # print(run_time2)
+    print("*********  DP eti_penalty:   *********")
+    print("overall penalty of DP:", eti_penalty1)
+    print("*********  DP runtime:   *********")
+    print(run_time1)
+    print("*********  CPLEX eti_penalty:   *********")
+    print("overall penalty of CPLEX:", eti_penalty2)
+    print("*********  CPLEX runtime:   *********")
+    print(run_time2)
     return round(eti_penalty1), round(eti_penalty2), block_lasts, test_model
 
 
@@ -69,7 +71,14 @@ def run2():
     print("*********  CPLEX runtime:   *********")
     print(run_time)
 
+def run3():
+    n = 8
+
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    run2()
+    n = 6
+    problem = utils.generate_problem(n)
+    ga=GA_BASIC(problem)
+    ga.cross([2,5,7,3,1,4,6,9,8,0],[6,4,7,9,0,8,3,1,2,5])

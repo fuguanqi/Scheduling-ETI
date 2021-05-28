@@ -18,8 +18,8 @@ class ETI_solution:
         self.eti_penalty = -1
 
 
-def init_ET_memo(jobs,para_due_dates, para_processing_times):
-    n=len(jobs)
+def init_ET_memo(jobs, para_due_dates, para_processing_times):
+    n = len(jobs)
     memo_ET = list()
     for i in range(n):
         row = list()
@@ -35,7 +35,7 @@ def init_ET_memo(jobs,para_due_dates, para_processing_times):
 
 
 def init_ETI_memo(jobs, para_due_dates):
-    n=len(jobs)
+    n = len(jobs)
     memo_ETI = list()
     for i in range(n):
         row = list()
@@ -49,8 +49,11 @@ def init_ETI_memo(jobs, para_due_dates):
     return memo_ETI
 
 
-def opt_ET(memo_ET, jobs, first, last, para_due_dates, para_processing_times, para_earliness_penalties,
-           para_tardiness_penalties):
+def opt_ET(memo_ET, jobs, first, last, problem):
+    para_due_dates = problem.due_dates
+    para_processing_times = problem.processing_times
+    para_earliness_penalties = problem.earliness_penalties
+    para_tardiness_penalties = problem.tardiness_penalties
     if memo_ET[first][last].head_last >= 0:
         return memo_ET[first][last].head_last, memo_ET[first][last].tail_first, memo_ET[first][last].tail_start, \
                memo_ET[first][last].et_penalty
@@ -128,22 +131,15 @@ def opt_ET(memo_ET, jobs, first, last, para_due_dates, para_processing_times, pa
     return head_last, tail_first, tail_start, et_penalty
 
 
-def dp(memoBT, memo_ET, memo_ETI, head_last, tail_first, jobs, first, last, b, para_due_dates, para_processing_times,
-       para_earliness_penalties,
-       para_tardiness_penalties):
+def dp(memoBT, memo_ET, memo_ETI, head_last, tail_first, jobs, first, last, problem):
+    b = problem.b
+    para_processing_times = problem.processing_times
     block_lasts = list()
     end_times = list()
-    eti_penalty = 0
     if head_last == tail_first - 1:
-        merged_block_start, _, merged_et_penalty = bt.time_block(memoBT, jobs, first, last, para_due_dates,
-                                                                 para_processing_times,
-                                                                 para_earliness_penalties, para_tardiness_penalties)
-        block_start1, block_end1, et_penalty1 = bt.time_block(memoBT, jobs, first, head_last, para_due_dates,
-                                                              para_processing_times,
-                                                              para_earliness_penalties, para_tardiness_penalties)
-        block_start2, _, et_penalty2 = bt.time_block(memoBT, jobs, tail_first, last, para_due_dates,
-                                                     para_processing_times,
-                                                     para_earliness_penalties, para_tardiness_penalties)
+        merged_block_start, _, merged_et_penalty = bt.time_block(memoBT, jobs, first, last, problem)
+        block_start1, block_end1, et_penalty1 = bt.time_block(memoBT, jobs, first, head_last, problem)
+        block_start2, _, et_penalty2 = bt.time_block(memoBT, jobs, tail_first, last, problem)
         if block_end1 >= block_start2:
             two_block_eti_penalty = utils.BIG_NUMBER
         else:
@@ -174,14 +170,10 @@ def dp(memoBT, memo_ET, memo_ETI, head_last, tail_first, jobs, first, last, b, p
             return block_lasts, end_times, eti_penalty
     else:
         block_lasts1, end_times1, eti_penalty1 = dp(memoBT, memo_ET, memo_ETI, head_last, tail_first - 1, jobs, first,
-                                                    last, b, para_due_dates, para_processing_times,
-                                                    para_earliness_penalties, para_tardiness_penalties)
-        tail_start, _, block_et_penalty = bt.time_block(memoBT, jobs, tail_first, last, para_due_dates,
-                                                        para_processing_times, para_earliness_penalties,
-                                                        para_tardiness_penalties)
+                                                    last, problem)
+        tail_start, _, block_et_penalty = bt.time_block(memoBT, jobs, tail_first, last, problem)
         block_lasts2, end_times2, eti_penalty2 = opt_ETI(memoBT, memo_ET, memo_ETI, tail_start, jobs, first,
-                                                         tail_first - 1, b, para_due_dates, para_processing_times,
-                                                         para_earliness_penalties, para_tardiness_penalties)
+                                                         tail_first - 1, problem)
         eti_penalty2 = eti_penalty2 + b + block_et_penalty
         block_lasts2.append(last)
         t = tail_start
@@ -195,21 +187,21 @@ def dp(memoBT, memo_ET, memo_ETI, head_last, tail_first, jobs, first, last, b, p
             return block_lasts1, end_times1, eti_penalty1
 
 
-def opt_ETI(memoBT, memo_ET, memo_ETI, uper_bound, jobs, first, last, b, para_due_dates, para_processing_times,
-            para_earliness_penalties,
-            para_tardiness_penalties):
+def opt_ETI(memoBT, memo_ET, memo_ETI, uper_bound, jobs, first, last, problem):
+    b = problem.b
+    para_due_dates = problem.due_dates
+    para_processing_times = problem.processing_times
+    para_earliness_penalties = problem.earliness_penalties
+    para_tardiness_penalties = problem.tardiness_penalties
     if memo_ETI[first][last].eti_penalty >= 0:
-        eti_penalty=memo_ETI[first][last].eti_penalty
+        eti_penalty = memo_ETI[first][last].eti_penalty
         if memo_ETI[first][last].end_times[last] >= uper_bound:
             eti_penalty = utils.BIG_NUMBER
         return list(memo_ETI[first][last].block_lasts), list(memo_ETI[first][last].end_times), eti_penalty
     block_lasts = list()
     end_times = list()
     eti_penalty = 0
-    head_last, tail_first, tail_start, et_penalty = opt_ET(memo_ET, jobs, first, last, para_due_dates,
-                                                           para_processing_times,
-                                                           para_earliness_penalties,
-                                                           para_tardiness_penalties)
+    head_last, tail_first, tail_start, et_penalty = opt_ET(memo_ET, jobs, first, last, problem)
     if head_last == last:  # if the optimal schedule of ET problem has only one block
         block_start = tail_start
         eti_penalty = et_penalty
@@ -220,9 +212,8 @@ def opt_ETI(memoBT, memo_ET, memo_ETI, uper_bound, jobs, first, last, b, para_du
             end_times.append(t)
 
     else:
-        block_lasts, end_times, eti_penalty = dp(memoBT, memo_ET, memo_ETI, head_last, tail_first, jobs, first, last, b,
-                                                 para_due_dates, para_processing_times, para_earliness_penalties,
-                                                 para_tardiness_penalties)
+        block_lasts, end_times, eti_penalty = dp(memoBT, memo_ET, memo_ETI, head_last, tail_first, jobs, first, last,
+                                                 problem)
     memo_ETI[first][last].block_lasts = list(block_lasts)
     memo_ETI[first][last].end_times = list(end_times)
     memo_ETI[first][last].eti_penalty = eti_penalty

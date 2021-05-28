@@ -25,8 +25,11 @@ def init_BT_memo(jobs, para_due_dates, para_processing_times):
 
 
 # jobs as list
-def time_block(memoBT, jobs, first, last, para_due_dates, para_processing_times, para_earliness_penalties,
-               para_tardiness_penalties):
+def time_block(memoBT, jobs, first, last, problem):
+    para_due_dates = problem.due_dates
+    para_processing_times = problem.processing_times
+    para_earliness_penalties = problem.earliness_penalties
+    para_tardiness_penalties = problem.tardiness_penalties
     if memoBT[first][last].block_start >= 0:
         return memoBT[first][last].block_start, memoBT[first][last].block_end, memoBT[first][last].et_penalty
 
