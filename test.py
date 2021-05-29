@@ -196,11 +196,12 @@ def test_Permutation(problem):
     objective_function = opt_model.sum(
         earlis_hat[i, j] * problem.earliness_penalties[j] + tardis_hat[i, j] * problem.tardiness_penalties[j] for i in
         range(problem.n) for j in range(problem.n)) + opt_model.sum(
-        idle_after[i] * problem.b for i in range(problem.n - 1)) + (end_times[problem.n - 1] - start) * problem.a
+        idle_after[i] * problem.b for i in range(problem.n - 1)) + (end_times[problem.n - 1] - start - opt_model.sum(
+        problem.processing_times[i] for i in range(problem.n))) * problem.a
 
     opt_model.minimize(objective_function)
     opt_model.solve()
-    print("        ******************************        ")
+    print("        *************** Test Permutation by DPLEX ***************        ")
     opt_model.report()
     print("        ******************************        ")
     print(opt_model.print_solution(print_zeros=False))

@@ -21,20 +21,30 @@ class Problem:
         self.tardiness_penalties = tardiness_penalties
 
 
+class Solution:
+    def __init__(self, block_lasts, end_times, eti_penalty):
+        self.block_lasts = block_lasts
+        self.end_times = end_times
+        self.eti_penalty = eti_penalty
+
+
+
+
+
 def generate_problem(n=5, seed=101):
-    # random.seed(seed)
+    random.seed(seed)
     # a=0
     a = round(random.random() * 2, 4)
     # b=0
-    b = round(5+ random.random() * 10, 4)
+    b = round(1 + random.random() * 10, 4)
     due_dates = list()
     processing_times = list()
     earliness_penalties = list()
     tardiness_penalties = list()
 
     for i in range(n):
-        due_dates.append(round(100 * n / 5 + random.random() * 55 * n / 5, 4))
-        processing_times.append(round(random.random() * 10, 4))
+        due_dates.append(round(100 * n / 5 + random.random() * 550 * n / 5, 4))
+        processing_times.append(round(random.random() * 50, 4))
         earliness_penalties.append(round(random.random() * 4, 4))
         tardiness_penalties.append(round(random.random() * 6, 4))
 
