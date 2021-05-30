@@ -72,14 +72,19 @@ def run2(problem):
 
 def run3(problem):
     ga = GA_BASIC(problem)
+    start = time.process_time()
     ga.run()
+    end = time.process_time()
+    run_time = end - start
+    print("*********  GA_BASIC runtime:   *********")
+    print(run_time)
     y1=ga.memo_opt[0:-1]
     x1=np.arange(1,len(y1)+1)
     l1 = plt.plot(x1, y1, 'r--', label='GA_BASIC')
-    plt.plot(x1, y1, 'ro-')
-    plt.title('The Convergence Curve on Three GAs')
+    plt.plot(x1, y1, 'r-')
+    plt.title('The Convergence Curve of GA')
     plt.xlabel('Iteration')
-    plt.ylabel('Column')
+    plt.ylabel('Best Objective')
     plt.legend()
     plt.show()
     print("**************** GA_BASIC ****************")
@@ -97,8 +102,8 @@ def run3(problem):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    n = 7
+    n = 30
     problem = utils.generate_problem(n)
-    run2(problem)
+    # run2(problem)
     run3(problem)
 

@@ -36,15 +36,16 @@ def generate_problem(n=5, seed=101):
     # a=0
     a = round(random.random() * 2, 4)
     # b=0
-    b = round(1 + random.random() * 10, 4)
+    b = round(50 + random.random() * 10, 4)
     due_dates = list()
     processing_times = list()
     earliness_penalties = list()
     tardiness_penalties = list()
 
+
     for i in range(n):
-        due_dates.append(round(100 * n / 5 + random.random() * 550 * n / 5, 4))
-        processing_times.append(round(random.random() * 50, 4))
+        due_dates.append(round(100 * n / 5 + random.random() * 30 * n , 4))
+        processing_times.append(round(random.random() * 20, 4))
         earliness_penalties.append(round(random.random() * 4, 4))
         tardiness_penalties.append(round(random.random() * 6, 4))
 
@@ -63,3 +64,15 @@ def generate_problem(n=5, seed=101):
     print("b= ", b)
     print("**************** Genrate Problem Finishied ****************")
     return Problem(n, a, b, due_dates, processing_times, earliness_penalties, tardiness_penalties)
+
+
+# def (problem):
+#     # Ordering + Timing solved by CPLEX
+#     # The variable part of idleness penalty is absorbed by the first job and the last job.
+#     p=copy.deepcopy(problem)
+#     start = time.process_time()
+#     opt_model = test.test_Permutation(p)
+#     end = time.process_time()
+#     run_time = end - start
+#     print("*********  CPLEX runtime:   *********")
+#     print(run_time)
