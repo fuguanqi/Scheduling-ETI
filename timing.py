@@ -11,7 +11,7 @@ class ET_solution:
         self.tail_first = -1
         self.tail_start = -1
         self.et_penalty = -1
-        self.num_idle=-1
+        self.num_idle = -1
 
 
 class ETI_solution:
@@ -156,6 +156,47 @@ def opt_ET(memo_ET, jobs, first, last, problem):
     return head_last, tail_first, tail_start, et_penalty, num_idle
 
 
+def opt_ET_no_memo(jobs, first, last, problem):
+    para_due_dates = problem.due_dates
+    para_processing_times = problem.processing_times
+    para_earliness_penalties = problem.earliness_penalties
+    para_tardiness_penalties = problem.tardiness_penalties
+    # Create model
+    opt_model = cpx.Model(name="Calculate E/T Model")
+    opt_model.parameters.simplex.tolerances.feasibility = 0.0000001
+
+    n = last - first + 1
+
+    # Decision parameters
+    end_times = opt_model.continuous_var_list(n, lb=0, name="end_time_of_job_%s")
+    earlis = opt_model.continuous_var_list(n, lb=0, name="earliness_of_job_%s")
+    tardis = opt_model.continuous_var_list(n, lb=0, name="tardiness_of_job_%s")
+
+    # constraint
+    opt_model.add_constraints_(
+        end_times[i] + para_processing_times[jobs[first + i + 1]] <= end_times[i + 1]
+        for i in range(n - 1)
+    )
+
+    # constraint
+    opt_model.add_constraints_(
+        end_times[i] + earlis[i] - tardis[i] == para_due_dates[jobs[first + i]] for i in range(n)
+    )
+
+    # Objective function
+    objective_function = opt_model.sum(
+        earlis[i] * para_earliness_penalties[jobs[first + i]] + tardis[i] * para_tardiness_penalties[jobs[first + i]]
+        for i in range(n)
+    )
+
+    # minimize objective
+    opt_model.minimize(objective_function)
+    opt_model.solve()
+    et_penalty = opt_model.solution.get_objective_value()
+
+    return et_penalty
+
+
 def dp(memoBT, memo_ET, memo_ETI, head_last, tail_first, jobs, first, last, problem):
     b = problem.b
     para_processing_times = problem.processing_times
@@ -278,7 +319,7 @@ def opt_ETI_Bounded(memoBT, memo_ET, memo_ETI_bounded, uper_bound, idle_bound, j
     else:
         block_lasts, end_times, eti_penalty = dp_Bounded(memoBT, memo_ET, memo_ETI_bounded, head_last, tail_first, jobs,
                                                          first, last, idle_bound, problem)
-    memo_ETI_bounded[first][last][idle_bound]=ETI_solution()
+    memo_ETI_bounded[first][last][idle_bound] = ETI_solution()
     memo_ETI_bounded[first][last][idle_bound].block_lasts = list(block_lasts)
     memo_ETI_bounded[first][last][idle_bound].end_times = list(end_times)
     memo_ETI_bounded[first][last][idle_bound].eti_penalty = eti_penalty
@@ -329,7 +370,7 @@ def dp_Bounded(memoBT, memo_ET, memo_ETI_bounded, head_last, tail_first, jobs, f
                                                             tail_first - 1, jobs, first, last, idle_bound, problem)
         tail_start, _, block_et_penalty = bt.time_block(memoBT, jobs, tail_first, last, problem)
         block_lasts2, end_times2, eti_penalty2 = opt_ETI_Bounded(memoBT, memo_ET, memo_ETI_bounded, tail_start,
-                                                                  idle_bound - 1, jobs, first, tail_first - 1, problem)
+                                                                 idle_bound - 1, jobs, first, tail_first - 1, problem)
         eti_penalty2 = eti_penalty2 + b + block_et_penalty
         block_lasts2.append(last)
         t = tail_start
