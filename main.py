@@ -6,7 +6,7 @@ import timing as timing
 import numpy as np
 import copy
 import matplotlib.pyplot as plt
-from GA import GA_BASIC
+import GA
 
 
 def run1(problem):
@@ -72,7 +72,7 @@ def run2(problem):
 
 
 def run3(problem):
-    ga = GA_BASIC(problem)
+    ga = GA.GA_BASIC(problem)
     start = time.process_time()
     ga.run()
     end = time.process_time()
@@ -101,7 +101,7 @@ def run3(problem):
 
 
 def run4(problem):
-    jobs = [8, 9, 3, 2, 1, 4, 7, 5, 6, 0,10,11,12,13,14,15,16,17,18,19]
+    jobs = [8, 9, 3, 2, 1, 4, 7, 5, 6, 0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
     p = copy.deepcopy(problem)
     n = p.n
     p.earliness_penalties[jobs[0]] = p.earliness_penalties[jobs[0]] + p.a
@@ -131,7 +131,7 @@ def run4(problem):
     memo_ET = timing.init_ET_memo(jobs, problem.due_dates, problem.processing_times)
     memo_ETI_bounded = timing.init_ETI_memo_bounded(jobs, problem.due_dates)
     block_lasts, end_times, eti_penalty2 = timing.opt_ETI_Bounded(memo_BT, memo_ET, memo_ETI_bounded, utils.BIG_NUMBER,
-                                                                  n - 1,jobs, 0, n - 1,  p)
+                                                                  n - 1, jobs, 0, n - 1, p)
     end = time.process_time()
     run_time2 = end - start
     print("**************** Main ****************")
@@ -148,9 +148,26 @@ def run4(problem):
     print("runtime 2", run_time2)
 
 
+def run5(problem):
+    ga = GA.GA_BASIC(problem)
+    start = time.process_time()
+    ga.run()
+    end = time.process_time()
+    run_time = end - start
+    print("*********  GA BASIC runtime:   *********")
+    print(run_time)
+    ga = GA.GA_Faster_DP(problem)
+    start = time.process_time()
+    ga.run()
+    end = time.process_time()
+    run_time = end - start
+    print("*********  GA with Faster DP runtime:   *********")
+    print(run_time)
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    n = 20
+    n = 15
     problem = utils.generate_problem(n)
     # run2(problem)
-    run4(problem)
+    run5(problem)

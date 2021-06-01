@@ -5,10 +5,11 @@ import random
 
 import utils
 
-POP_SIZE=50
-MAX_ITER=100
-CROSS_RATE=0.7
-MUT_RATE=0.20
+POP_SIZE = 50
+MAX_ITER = 100
+CROSS_RATE = 0.7
+MUT_RATE = 0.20
+
 
 class GA_BASIC():
     def __init__(self, problem, pop_size=POP_SIZE, max_iter=MAX_ITER, cross_rate=CROSS_RATE, mut_rate=MUT_RATE):
@@ -236,9 +237,9 @@ class GA_Faster_DP():
         # memos
         memo_BT = bt.init_BT_memo(chromo, p.due_dates, p.processing_times)
         memo_ET = timing.init_ET_memo(chromo, p.due_dates, p.processing_times)
-        memo_ETI = timing.init_ETI_memo(chromo, p.due_dates)
-        block_lasts, end_times, eti_penalty = timing.opt_ETI(memo_BT, memo_ET, memo_ETI, utils.BIG_NUMBER, chromo, 0,
-                                                             self.n - 1, p)
+        memo_ETI = timing.init_ETI_memo_bounded(chromo, p.due_dates)
+        block_lasts, end_times, eti_penalty = timing.opt_ETI_Bounded(memo_BT, memo_ET, memo_ETI, utils.BIG_NUMBER,
+                                                                     self.n - 1, chromo, 0, self.n - 1, p)
         # if self.iter == 0:
         #     print(eti_penalty)
         real_obj = self.cal_Real_Objective(chromo, block_lasts, end_times, self.problem)

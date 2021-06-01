@@ -36,7 +36,7 @@ def generate_problem(n=5, seed=101):
     # a=0
     a = round(random.random() * 2, 4)
     # b=0
-    b = round(50 + random.random() * 10, 4)
+    b = round(90 + random.random() * 10, 4)
     due_dates = list()
     processing_times = list()
     earliness_penalties = list()
