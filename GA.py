@@ -8,7 +8,7 @@ import utils
 POP_SIZE=50
 MAX_ITER=100
 CROSS_RATE=0.7
-MUT_RATE=0.12
+MUT_RATE=0.20
 
 class GA_BASIC():
     def __init__(self, problem, pop_size=POP_SIZE, max_iter=MAX_ITER, cross_rate=CROSS_RATE, mut_rate=MUT_RATE):
