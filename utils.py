@@ -22,10 +22,11 @@ class Problem:
 
 
 class Solution:
-    def __init__(self, block_lasts, end_times, eti_penalty):
+    def __init__(self, block_lasts, end_times, eti_penalty,et_ratio):
         self.block_lasts = block_lasts
         self.end_times = end_times
         self.eti_penalty = eti_penalty
+        self.et_ratio=et_ratio
 
 
 

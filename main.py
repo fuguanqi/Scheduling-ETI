@@ -154,15 +154,24 @@ def run5(problem):
     ga.run()
     end = time.process_time()
     run_time = end - start
+    print("*********  GA BASIC obj:   *********")
+    print(ga.memo_FV[tuple(ga.opt_chromo)].eti_penalty)
     print("*********  GA BASIC runtime:   *********")
     print(run_time)
+    print("*********  GA BASIC et_ratio:   *********")
+    print(ga.memo_FV[tuple(ga.opt_chromo)].et_ratio)
+
     ga = GA.GA_Faster_DP(problem)
     start = time.process_time()
     ga.run()
     end = time.process_time()
     run_time = end - start
+    print("*********  GA with Faster DP obj:   *********")
+    print(ga.memo_FV[tuple(ga.opt_chromo)].eti_penalty)
     print("*********  GA with Faster DP runtime:   *********")
     print(run_time)
+    print("*********  GA with Faster DP et_ratio:   *********")
+    print(ga.memo_FV[tuple(ga.opt_chromo)].et_ratio)
 
 
 # Press the green button in the gutter to run the script.

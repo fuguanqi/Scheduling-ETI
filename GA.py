@@ -69,8 +69,8 @@ class GA_BASIC():
                                                              self.n - 1, p)
         # if self.iter == 0:
         #     print(eti_penalty)
-        real_obj = self.cal_Real_Objective(chromo, block_lasts, end_times, self.problem)
-        self.memo_FV[tuple(chromo)] = utils.Solution(block_lasts, end_times, real_obj)
+        real_obj, et_ratio = self.cal_Real_Objective(chromo, block_lasts, end_times, self.problem)
+        self.memo_FV[tuple(chromo)] = utils.Solution(block_lasts, end_times, real_obj, et_ratio)
         return real_obj
 
     def cross(self, parent1, parent2):
@@ -166,15 +166,18 @@ class GA_BASIC():
 
     def cal_Real_Objective(self, chromo, block_lasts, end_times, problem):
         obj = 0
+        et_penalty = 0
+        idle_penalty = 0
         for i in range(problem.n):
             if end_times[i] > problem.due_dates[chromo[i]]:
-                obj += (end_times[i] - problem.due_dates[chromo[i]]) * problem.tardiness_penalties[chromo[i]]
+                et_penalty += (end_times[i] - problem.due_dates[chromo[i]]) * problem.tardiness_penalties[chromo[i]]
             if end_times[i] < problem.due_dates[chromo[i]]:
-                obj += (problem.due_dates[chromo[i]] - end_times[i]) * problem.earliness_penalties[chromo[i]]
+                et_penalty += (problem.due_dates[chromo[i]] - end_times[i]) * problem.earliness_penalties[chromo[i]]
             if i < problem.n - 1 and i in block_lasts:
-                obj += (end_times[i + 1] - end_times[i] - problem.processing_times[
+                idle_penalty += (end_times[i + 1] - end_times[i] - problem.processing_times[
                     chromo[i + 1]]) * problem.a + problem.b
-        return obj
+            obj = et_penalty + idle_penalty
+        return obj, et_penalty / obj
 
     def run(self):
         self.pop = self.generate_Initial()
@@ -242,8 +245,8 @@ class GA_Faster_DP():
                                                                      self.n - 1, chromo, 0, self.n - 1, p)
         # if self.iter == 0:
         #     print(eti_penalty)
-        real_obj = self.cal_Real_Objective(chromo, block_lasts, end_times, self.problem)
-        self.memo_FV[tuple(chromo)] = utils.Solution(block_lasts, end_times, real_obj)
+        real_obj, et_ratio = self.cal_Real_Objective(chromo, block_lasts, end_times, self.problem)
+        self.memo_FV[tuple(chromo)] = utils.Solution(block_lasts, end_times, real_obj, et_ratio)
         return real_obj
 
     def cross(self, parent1, parent2):
@@ -339,15 +342,18 @@ class GA_Faster_DP():
 
     def cal_Real_Objective(self, chromo, block_lasts, end_times, problem):
         obj = 0
+        et_penalty = 0
+        idle_penalty = 0
         for i in range(problem.n):
             if end_times[i] > problem.due_dates[chromo[i]]:
-                obj += (end_times[i] - problem.due_dates[chromo[i]]) * problem.tardiness_penalties[chromo[i]]
+                et_penalty += (end_times[i] - problem.due_dates[chromo[i]]) * problem.tardiness_penalties[chromo[i]]
             if end_times[i] < problem.due_dates[chromo[i]]:
-                obj += (problem.due_dates[chromo[i]] - end_times[i]) * problem.earliness_penalties[chromo[i]]
+                et_penalty += (problem.due_dates[chromo[i]] - end_times[i]) * problem.earliness_penalties[chromo[i]]
             if i < problem.n - 1 and i in block_lasts:
-                obj += (end_times[i + 1] - end_times[i] - problem.processing_times[
+                idle_penalty += (end_times[i + 1] - end_times[i] - problem.processing_times[
                     chromo[i + 1]]) * problem.a + problem.b
-        return obj
+            obj = et_penalty + idle_penalty
+        return obj, et_penalty / obj
 
     def run(self):
         self.pop = self.generate_Initial()
