@@ -143,6 +143,7 @@ def run4(problem):
         print(i)
     print("********* Bounded DP eti_penalty:   *********")
     print("overall penalty of basic DP:", eti_penalty2)
+    print("******************")
     print("runtime 1", run_time1)
     print("runtime 2", run_time2)
 
