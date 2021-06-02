@@ -30,7 +30,7 @@ class Solution:
 
 
 def generate_problem(n=5, b=1, seed=101):
-    random.seed(seed)
+    # random.seed(seed)
     # a=0
     a = round(random.random() * 2, 4)
     # b=0

@@ -585,7 +585,7 @@ class GA_Faster_Both():
         tempChromo = chromo.copy()
         self.opt_chromo = tempChromo
         self.memo_opt.append(self.cal_Fitness_Value(tempChromo))
-        for i in range(nCBD):
+        for i in range(nCBD):  # 初始pop中，以due的顺序作为加工顺序的染色体数量
             initial.append(tempChromo)
 
         for i in range(self.pop_size - nCBD):

@@ -11,6 +11,8 @@ import copy
 import matplotlib.pyplot as plt
 import GA
 
+REPEAT = 5
+
 
 def run1(problem):
     # print('"***************  Single Machine Scheduling with E/T/I Penalties  ***************"')
@@ -151,75 +153,127 @@ def run4(problem):
     print("runtime 2", run_time2)
 
 
-def run5(problem):
-    ga_basic = GA.GA_BASIC(problem)
-    start = time.process_time()
-    ga_basic.run()
-    end = time.process_time()
-    run_time = end - start
-    print("*********  GA BASIC obj:   *********")
-    print(ga_basic.memo_FV[tuple(ga_basic.opt_chromo)].eti_penalty)
-    print("*********  GA BASIC runtime:   *********")
-    print(run_time)
-    print("*********  GA BASIC b_ratio:   *********")
-    print(ga_basic.memo_FV[tuple(ga_basic.opt_chromo)].b_ratio)
+def run5(n, b):
+    run_time = 0
+    b_ratio = 0
+    for i in range(REPEAT):
+        problem = utils.generate_problem(n, b)
+        ga_basic = GA.GA_BASIC(problem)
+        start = time.process_time()
+        ga_basic.run()
+        end = time.process_time()
+        run_time += end - start
+        b_ratio += ga_basic.memo_FV[tuple(ga_basic.opt_chromo)].b_ratio
+    run_time = run_time / REPEAT
+    b_ratio = b_ratio / REPEAT
+    f = open('basicGA_results.txt', 'a')
+    f.write(str(problem.n) + "\t" + str(problem.b) + "\t" + str(run_time) + "\t" + str(b_ratio) + "\n")
+    f.close()
+    # print("*********  GA BASIC obj:   *********")
+    # print(ga_basic.memo_FV[tuple(ga_basic.opt_chromo)].eti_penalty)
+    # print("*********  GA BASIC runtime:   *********")
+    # print(run_time)
+    # print("*********  GA BASIC b_ratio:   *********")
+    # print(ga_basic.memo_FV[tuple(ga_basic.opt_chromo)].b_ratio)
+    # print()
+    # print()
 
 
-def run6(problem):
-    ga_fasterDP = GA.GA_Faster_DP(problem)
-    start = time.process_time()
-    ga_fasterDP.run()
-    end = time.process_time()
-    run_time = end - start
-    print("*********  GA with Faster DP obj:   *********")
-    print(ga_fasterDP.memo_FV[tuple(ga_fasterDP.opt_chromo)].eti_penalty)
-    print("*********  GA with Faster DP runtime:   *********")
-    print(run_time)
-    print("*********  GA with Faster DP b_ratio:   *********")
-    print(ga_fasterDP.memo_FV[tuple(ga_fasterDP.opt_chromo)].b_ratio)
+def run6(n, b):
+    run_time = 0
+    b_ratio = 0
+    for i in range(REPEAT):
+        problem = utils.generate_problem(n, b)
+        ga_fasterDP = GA.GA_Faster_DP(problem)
+        start = time.process_time()
+        ga_fasterDP.run()
+        end = time.process_time()
+        run_time += end - start
+        b_ratio += ga_fasterDP.memo_FV[tuple(ga_fasterDP.opt_chromo)].b_ratio
+    run_time = run_time / REPEAT
+    b_ratio = b_ratio / REPEAT
+    f = open('FasterDP_GA_results.txt', 'a')
+    f.write(str(problem.n) + "\t" + str(problem.b) + "\t" + str(run_time) + "\t" + str(b_ratio) + "\n")
+    f.close()
+
+    # print("*********  GA with Faster DP obj:   *********")
+    # print(ga_fasterDP.memo_FV[tuple(ga_fasterDP.opt_chromo)].eti_penalty)
+    # print("*********  GA with Faster DP runtime:   *********")
+    # print(run_time)
+    # print("*********  GA with Faster DP b_ratio:   *********")
+    # print(ga_fasterDP.memo_FV[tuple(ga_fasterDP.opt_chromo)].b_ratio)
+    # print()
+    # print()
 
 
-def run7(problem):
-    ga_faster_Sel = GA.GA_Faster_Select(problem)
-    start = time.process_time()
-    ga_faster_Sel.run()
-    end = time.process_time()
-    run_time = end - start
-    print("*********  GA with Faster Select obj:   *********")
-    print(ga_faster_Sel.memo_FV[tuple(ga_faster_Sel.opt_chromo)].eti_penalty)
-    print("*********  GA with Faster Select runtime:   *********")
-    print(run_time)
-    print("*********  GA with Faster Select b_ratio:   *********")
-    print(ga_faster_Sel.memo_FV[tuple(ga_faster_Sel.opt_chromo)].b_ratio)
+def run7(n, b):
+    run_time = 0
+    b_ratio = 0
+    for i in range(REPEAT):
+        problem = utils.generate_problem(n, b)
+        ga_faster_Sel = GA.GA_Faster_Select(problem)
+        start = time.process_time()
+        ga_faster_Sel.run()
+        end = time.process_time()
+        run_time += end - start
+        b_ratio += ga_faster_Sel.memo_FV[tuple(ga_faster_Sel.opt_chromo)].b_ratio
+    run_time = run_time / REPEAT
+    b_ratio = b_ratio / REPEAT
+    f = open('FasterSel_GA_results.txt', 'a')
+    f.write(str(problem.n) + "\t" + str(problem.b) + "\t" + str(run_time) + "\t" + str(b_ratio) + "\n")
+    f.close()
+    # print("*********  GA with Faster Select obj:   *********")
+    # print(ga_faster_Sel.memo_FV[tuple(ga_faster_Sel.opt_chromo)].eti_penalty)
+    # print("*********  GA with Faster Select runtime:   *********")
+    # print(run_time)
+    # print("*********  GA with Faster Select b_ratio:   *********")
+    # print(ga_faster_Sel.memo_FV[tuple(ga_faster_Sel.opt_chromo)].b_ratio)
+    # print()
+    # print()
 
 
-def run8(problem):
-    ga_faster_both = GA.GA_Faster_Both(problem)
-    start = time.process_time()
-    ga_faster_both.run()
-    end = time.process_time()
-    run_time = end - start
-    print("*********  GA with Faster Both obj:   *********")
-    print(ga_faster_both.memo_FV[tuple(ga_faster_both.opt_chromo)].eti_penalty)
-    print("*********  GA with Faster Both runtime:   *********")
-    print(run_time)
-    print("*********  GA with Faster Both b_ratio:   *********")
-    print(ga_faster_both.memo_FV[tuple(ga_faster_both.opt_chromo)].b_ratio)
+def run8(n, b):
+    run_time = 0
+    b_ratio = 0
+    for i in range(REPEAT):
+        problem = utils.generate_problem(n, b)
+        ga_faster_both = GA.GA_Faster_Both(problem)
+        start = time.process_time()
+        ga_faster_both.run()
+        end = time.process_time()
+        run_time += end - start
+        b_ratio += ga_faster_both.memo_FV[tuple(ga_faster_both.opt_chromo)].b_ratio
+    run_time = run_time / REPEAT
+    b_ratio = b_ratio / REPEAT
+    f = open('FasterBoth_GA_results.txt', 'a')
+    f.write(str(problem.n) + "\t" + str(problem.b) + "\t" + str(run_time) + "\t" + str(b_ratio) + "\n")
+    f.close()
+
+    # print("*********  GA with Faster Both obj:   *********")
+    # print(ga_faster_both.memo_FV[tuple(ga_faster_both.opt_chromo)].eti_penalty)
+    # print("*********  GA with Faster Both runtime:   *********")
+    # print(run_time)
+    # print("*********  GA with Faster Both b_ratio:   *********")
+    # print(ga_faster_both.memo_FV[tuple(ga_faster_both.opt_chromo)].b_ratio)
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    n = 15
-    problem = utils.generate_problem(n)
-    proc1 = Process(target=run5, args=(problem,))
-    proc2 = Process(target=run6, args=(problem,))
-    proc3 = Process(target=run7, args=(problem,))
-    proc4 = Process(target=run8, args=(problem,))
-    proc1.start()
-    proc2.start()
-    proc3.start()
-    proc4.start()
-    proc1.join()
-    proc2.join()
-    proc3.join()
-    proc4.join()
+    N = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21]
+    # N = [3, 5]
+    B = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200]
+    # B = [1, 20, 100]
+    for n in N:
+        for b in B:
+            proc1 = Process(target=run5, args=(n, b))
+            proc2 = Process(target=run6, args=(n, b))
+            proc3 = Process(target=run7, args=(n, b))
+            proc4 = Process(target=run8, args=(n, b))
+            proc1.start()
+            proc2.start()
+            proc3.start()
+            proc4.start()
+            proc1.join()
+            proc2.join()
+            proc3.join()
+            proc4.join()
