@@ -1,6 +1,7 @@
 import _thread
 from multiprocessing.context import Process
-
+import random
+import Sourd
 import utils as utils
 import time
 import test
@@ -257,23 +258,52 @@ def run8(n, b):
     # print(ga_faster_both.memo_FV[tuple(ga_faster_both.opt_chromo)].b_ratio)
 
 
+def run9(n, b):
+    for i in range(REPEAT):
+        jobs = list(range(n))
+        random.shuffle(jobs)
+        p = utils.generate_problem(n, b)
+        p.earliness_penalties[jobs[0]] = p.earliness_penalties[jobs[0]] + p.a
+        p.tardiness_penalties[jobs[0]] = p.tardiness_penalties[jobs[0]] - p.a
+        p.earliness_penalties[jobs[n - 1]] = p.earliness_penalties[jobs[n - 1]] - p.a
+        p.tardiness_penalties[jobs[n - 1]] = p.tardiness_penalties[jobs[n - 1]] + p.a
+        start = time.process_time()
+        memo_BT = bt.init_BT_memo(jobs, p.due_dates, p.processing_times)
+        memo_ET = timing.init_ET_memo(jobs, p.due_dates, p.processing_times)
+        memo_ETI = timing.init_ETI_memo_bounded(jobs, p.due_dates)
+        _, _, eti_penalty1 = timing.opt_ETI_Bounded(memo_BT, memo_ET, memo_ETI, utils.BIG_NUMBER, n - 1, jobs, 0,
+                                                          n - 1, p)
+        end = time.process_time()
+        run_time1 = end - start
+        print("My DP ETI = ", eti_penalty1)
+        print("My DP runtime = ", run_time1)
+        sourd = Sourd.Sourd(jobs, p)
+        start = time.process_time()
+        eti_penalty2 = sourd.run()
+        end = time.process_time()
+        run_time2 = end - start
+        print("Sourd's DP ETI = ", eti_penalty2)
+        print("Sourd's DP runtime = ", run_time2)
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    N = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21]
-    # N = [3, 5]
-    B = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200]
-    # B = [1, 20, 100]
+    # N = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21]
+    N = [100,200,300]
+    # B = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200]
+    B = [1, 20, 100]
     for n in N:
         for b in B:
-            proc1 = Process(target=run5, args=(n, b))
-            proc2 = Process(target=run6, args=(n, b))
-            proc3 = Process(target=run7, args=(n, b))
-            proc4 = Process(target=run8, args=(n, b))
-            proc1.start()
-            proc2.start()
-            proc3.start()
-            proc4.start()
-            proc1.join()
-            proc2.join()
-            proc3.join()
-            proc4.join()
+            run9(n,b)
+            # proc1 = Process(target=run5, args=(n, b))
+            # # proc2 = Process(target=run6, args=(n, b))
+            # # proc3 = Process(target=run7, args=(n, b))
+            # proc4 = Process(target=run8, args=(n, b))
+            # proc1.start()
+            # # proc2.start()
+            # # proc3.start()
+            # proc4.start()
+            # proc1.join()
+            # # proc2.join()
+            # # proc3.join()
+            # proc4.join()
