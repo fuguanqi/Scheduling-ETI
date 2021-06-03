@@ -15,7 +15,7 @@ class Sourd:
         for i in range(1, len(self.jobs)):
             self.vs[i].append(self.problem.due_dates[self.jobs[i]])
             for j in range(len(self.vs[i - 1])):
-                self.vs[i].append(self.vs[i - 1][j] + self.problem.processing_times[i])
+                self.vs[i].append(self.vs[i - 1][j] + self.problem.processing_times[self.jobs[i]])
         return
 
     def init_memo(self):
@@ -29,7 +29,7 @@ class Sourd:
         best_obj = utils.BIG_NUMBER
         if n == len(self.jobs) - 1:
             for t in self.vs[n]:
-                obj = self.et(n, t) + self.dp(n - 1, t - self.problem.processing_times[n])
+                obj = self.et(n, t) + self.dp(n - 1, t - self.problem.processing_times[self.jobs[n]])
                 if obj < best_obj:
                     best_obj = obj
         elif n == 0:
@@ -41,9 +41,10 @@ class Sourd:
         else:
             for t in self.vs[n]:
                 if t >= bound:
-                    obj = self.et(n, bound) + self.dp(n - 1, bound - self.problem.processing_times[n])
+                    obj = self.et(n, bound) + self.dp(n - 1, bound - self.problem.processing_times[self.jobs[n]])
                 else:
-                    obj = self.et(n, t) + self.dp(n - 1, t - self.problem.processing_times[n]) + self.problem.b
+                    obj = self.et(n, t) + self.dp(n - 1,
+                                                  t - self.problem.processing_times[self.jobs[n]]) + self.problem.b
                 if obj < best_obj:
                     best_obj = obj
         self.memo[n][bound] = best_obj

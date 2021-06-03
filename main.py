@@ -259,6 +259,10 @@ def run8(n, b):
 
 
 def run9(n, b):
+    run_time1 = 0
+    run_time2 = 0
+    run_time3 = 0
+    b_ratio = 0
     for i in range(REPEAT):
         jobs = list(range(n))
         random.shuffle(jobs)
@@ -272,29 +276,54 @@ def run9(n, b):
         memo_ET = timing.init_ET_memo(jobs, p.due_dates, p.processing_times)
         memo_ETI = timing.init_ETI_memo_bounded(jobs, p.due_dates)
         _, _, eti_penalty1 = timing.opt_ETI_Bounded(memo_BT, memo_ET, memo_ETI, utils.BIG_NUMBER, n - 1, jobs, 0,
-                                                          n - 1, p)
+                                                    n - 1, p)
         end = time.process_time()
-        run_time1 = end - start
-        print("My DP ETI = ", eti_penalty1)
-        print("My DP runtime = ", run_time1)
+        run_time1 += end - start
+        # print("My DP ETI = ", eti_penalty1)
+        # print("My DP runtime = ", run_time1)
         sourd = Sourd.Sourd(jobs, p)
         start = time.process_time()
         eti_penalty2 = sourd.run()
         end = time.process_time()
-        run_time2 = end - start
-        print("Sourd's DP ETI = ", eti_penalty2)
-        print("Sourd's DP runtime = ", run_time2)
+        run_time2 += end - start
+        # print("Sourd's DP ETI = ", eti_penalty2)
+        # print("Sourd's DP runtime = ", run_time2)
+        start = time.process_time()
+        eti_penalty3, opt_model = test.test_DP(jobs, b, p.due_dates, p.processing_times,
+                                               p.earliness_penalties, p.tardiness_penalties)
+        end = time.process_time()
+        run_time3 += end - start
+        num_idle = 0
+        for j in range(n - 1):
+            num_idle += opt_model.get_var_by_name("idleness_after_job_" + str(j))
+        b_ratio += num_idle * b / eti_penalty1
+        # print("CPLEX ETI = ", eti_penalty3)
+        # print("CPLEX runtime = ", run_time3)
+    b_ratio = b_ratio / REPEAT
+    run_time1 = run_time1 / REPEAT
+    run_time2 = run_time2 / REPEAT
+    run_time3 = run_time3 / REPEAT
+    f = open('My_DP_results.txt', 'a')
+    f.write(str(n) + "\t" + str(b) + "\t" + str(run_time1) + "\t" + str(b_ratio) + "\n")
+    f.close()
+    f = open('Sourd_DP_results.txt', 'a')
+    f.write(str(n) + "\t" + str(b) + "\t" + str(run_time2) + "\t" + str(b_ratio) + "\n")
+    f.close()
+    f = open('CPLEX_TIMING_results.txt', 'a')
+    f.write(str(n) + "\t" + str(b) + "\t" + str(run_time3) + "\t" + str(b_ratio) + "\n")
+    f.close()
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # N = [3, 5, 7, 9, 11, 13, 15, 17, 19, 21]
-    N = [100,200,300]
-    # B = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200]
-    B = [1, 20, 100]
+    N = [900, 800, 700, 600, 500, 400, 300, 200, 100, 50, 20]
+    # N = [100, 200, 300]
+    B = [0.1, 0.5, 1, 2, 5, 10, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200]
+    # B = [1, 20, 100]
     for n in N:
         for b in B:
-            run9(n,b)
+            run9(n, b)
             # proc1 = Process(target=run5, args=(n, b))
             # # proc2 = Process(target=run6, args=(n, b))
             # # proc3 = Process(target=run7, args=(n, b))
