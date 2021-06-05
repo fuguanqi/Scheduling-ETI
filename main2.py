@@ -1,4 +1,3 @@
-import _thread
 from multiprocessing.context import Process
 import random
 import Sourd
@@ -191,7 +190,7 @@ def run5(p):
     run_time = end - start
     b_ratio = ga_basic.memo_FV[tuple(ga_basic.opt_chromo)].b_ratio
     f = open('basicGA_results.txt', 'a')
-    f.write(str(p.n) + "\t" + str(p.b) +"\t"+str(p.rho)+ "\t" + str(run_time) + "\t" + str(b_ratio) + "\n")
+    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time) + "\t" + str(b_ratio) + "\n")
     f.close()
 
 
@@ -206,6 +205,7 @@ def run6(p):
     f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time) + "\t" + str(b_ratio) + "\n")
     f.close()
 
+
 def run7(p):
     ga_basic = GA.GA_Faster_Select(p)
     start = time.process_time()
@@ -218,7 +218,6 @@ def run7(p):
     f.close()
 
 
-
 def run8(p):
     ga_basic = GA.GA_Faster_Both(p)
     start = time.process_time()
@@ -229,7 +228,6 @@ def run8(p):
     f = open('GA with Both results.txt', 'a')
     f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time) + "\t" + str(b_ratio) + "\n")
     f.close()
-
 
 
 def run9(p):
@@ -320,18 +318,18 @@ if __name__ == '__main__':
             for rho in RHO:
                 for i in range(REPEAT):
                     p = utils.generate_problem(n, b, rho, seed=REPEAT)
-                    proc1 = Process(target=run5, args=(p,))
-                    # proc2 = Process(target=run6, args=(p))
-                    # proc3 = Process(target=run7, args=(p))
-                    proc4 = Process(target=run8, args=(p,))
-                    proc1.start()
-                    # proc2.start()
-                    # proc3.start()
-                    proc4.start()
-                    proc1.join()
-                    # proc2.join()
-                    # proc3.join()
-                    proc4.join()
+                    # proc1 = Process(target=run5, args=(p))
+                    proc2 = Process(target=run6, args=(p,))
+                    proc3 = Process(target=run7, args=(p,))
+                    # proc4 = Process(target=run8, args=(p))
+                    # proc1.start()
+                    proc2.start()
+                    proc3.start()
+                    # proc4.start()
+                    # proc1.join()
+                    proc2.join()
+                    proc3.join()
+                    # proc4.join()
 
     # proc5 = Process(target=run9, args=(n, b))
     # proc6 = Process(target=run10, args=(n, b))

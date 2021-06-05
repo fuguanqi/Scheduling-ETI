@@ -11,10 +11,11 @@ class Block:
 
 
 class Problem:
-    def __init__(self, n, a, b, due_dates, processing_times, earliness_penalties, tardiness_penalties):
+    def __init__(self, n, a, b,rho, due_dates, processing_times, earliness_penalties, tardiness_penalties):
         self.n = n
         self.a = a
         self.b = b
+        self.rho=rho
         self.due_dates = due_dates
         self.processing_times = processing_times
         self.earliness_penalties = earliness_penalties
@@ -29,8 +30,8 @@ class Solution:
         self.b_ratio = b_ratio
 
 
-def generate_problem(n=5, b=1, seed=101):
-    # random.seed(seed)
+def generate_problem(n, b, rho, seed=101):
+    random.seed(seed)
     # a=0
     a = round(random.random() * 2, 4)
     # b=0
@@ -40,10 +41,10 @@ def generate_problem(n=5, b=1, seed=101):
     tardiness_penalties = list()
 
     for i in range(n):
-        due_dates.append(round(100 * n / 5 + random.random() * 30 * n, 4))
-        processing_times.append(round(random.random() * 20, 4))
-        earliness_penalties.append(round(random.random() * 16, 4))
-        tardiness_penalties.append(round(random.random() * 24, 4))
+        due_dates.append(round(20 * n + random.random() * 20 * (n - 1), 4))
+        processing_times.append(round(random.random() * 20 * rho, 4))
+        earliness_penalties.append(round(random.random() * 5, 4))
+        tardiness_penalties.append(round(random.random() * 8, 4))
 
     # # The variable part of idleness penalty is absorbed by the first job and the last job.
     # earliness_penalties[0] = earliness_penalties[0] + a
@@ -59,7 +60,7 @@ def generate_problem(n=5, b=1, seed=101):
     print("a= ", a)
     print("b= ", b)
     print("**************** Genrate Problem Finishied ****************")
-    return Problem(n, a, b, due_dates, processing_times, earliness_penalties, tardiness_penalties)
+    return Problem(n, a, b,rho,  due_dates, processing_times, earliness_penalties, tardiness_penalties)
 
 # def (problem):
 #     # Ordering + Timing solved by CPLEX

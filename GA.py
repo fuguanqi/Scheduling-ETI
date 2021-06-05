@@ -6,7 +6,7 @@ import random
 import utils
 
 POP_SIZE = 50
-MAX_ITER = 100
+MAX_ITER = 50
 CROSS_RATE = 0.7
 MUT_RATE = 0.20
 
