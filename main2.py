@@ -1,17 +1,19 @@
+import sys
 from multiprocessing.context import Process
-import random
 import Sourd
 import utils as utils
 import time
 import test
 import blockTiming as bt
-import timing as timing
 import numpy as np
 import copy
 import matplotlib.pyplot as plt
 import GA
+import My_DP as dp
+import My_DP_Bounded as dpb
+import ET_opt as et
 
-REPEAT = 5
+REPEAT = 10
 
 
 def run1(problem):
@@ -32,10 +34,10 @@ def run1(problem):
 
     start = time.process_time()
     memo_BT = bt.init_BT_memo(jobs, problem.due_dates, problem.processing_times)
-    memo_ET = timing.init_ET_memo(jobs, problem.due_dates, problem.processing_times)
-    memo_ETI = timing.init_ETI_memo(jobs, problem.due_dates)
-    block_lasts, end_times, eti_penalty1 = timing.opt_ETI(memo_BT, memo_ET, memo_ETI, utils.BIG_NUMBER, jobs, 0, n - 1,
-                                                          p)
+    memo_ET = et.init_ET_memo(jobs, problem.due_dates, problem.processing_times)
+    memo_ETI = dp.init_ETI_memo(jobs, problem.due_dates)
+    block_lasts, end_times, eti_penalty1 = dp.opt_ETI(memo_BT, memo_ET, memo_ETI, utils.BIG_NUMBER, jobs, 0, n - 1,
+                                                      p)
     end = time.process_time()
     run_time1 = end - start
     print("**************** Main ****************")
@@ -144,10 +146,10 @@ def run4(problem):
     p.tardiness_penalties[jobs[n - 1]] = p.tardiness_penalties[jobs[n - 1]] + p.a
     start = time.process_time()
     memo_BT = bt.init_BT_memo(jobs, problem.due_dates, problem.processing_times)
-    memo_ET = timing.init_ET_memo(jobs, problem.due_dates, problem.processing_times)
-    memo_ETI = timing.init_ETI_memo(jobs, problem.due_dates)
-    block_lasts, end_times, eti_penalty1 = timing.opt_ETI(memo_BT, memo_ET, memo_ETI, utils.BIG_NUMBER, jobs, 0, n - 1,
-                                                          p)
+    memo_ET = et.init_ET_memo(jobs, problem.due_dates, problem.processing_times)
+    memo_ETI = dp.init_ETI_memo(jobs, problem.due_dates)
+    block_lasts, end_times, eti_penalty1 = dp.opt_ETI(memo_BT, memo_ET, memo_ETI, utils.BIG_NUMBER, jobs, 0, n - 1,
+                                                      p)
     end = time.process_time()
     run_time1 = end - start
     print("**************** Main ****************")
@@ -162,10 +164,10 @@ def run4(problem):
 
     start = time.process_time()
     memo_BT = bt.init_BT_memo(jobs, problem.due_dates, problem.processing_times)
-    memo_ET = timing.init_ET_memo(jobs, problem.due_dates, problem.processing_times)
-    memo_ETI_bounded = timing.init_ETI_memo_bounded(jobs, problem.due_dates)
-    block_lasts, end_times, eti_penalty2 = timing.opt_ETI_Bounded(memo_BT, memo_ET, memo_ETI_bounded, utils.BIG_NUMBER,
-                                                                  n - 1, jobs, 0, n - 1, p)
+    memo_ET = et.init_ET_memo(jobs, problem.due_dates, problem.processing_times)
+    memo_ETI_bounded = dpb.init_ETI_memo_bounded(jobs, problem.due_dates)
+    block_lasts, end_times, eti_penalty2 = dpb.opt_ETI_Bounded(memo_BT, memo_ET, memo_ETI_bounded, utils.BIG_NUMBER,
+                                                               n - 1, jobs, 0, n - 1, p)
     end = time.process_time()
     run_time2 = end - start
     print("**************** Main ****************")
@@ -230,76 +232,72 @@ def run8(p):
     f.close()
 
 
-def run9(p):
-    run_time1 = 0
-    for i in range(REPEAT):
-        jobs = list(range(n))
-        random.shuffle(jobs)
-        p = utils.generate_problem(n, b)
-        p.earliness_penalties[jobs[0]] = p.earliness_penalties[jobs[0]] + p.a
-        p.tardiness_penalties[jobs[0]] = p.tardiness_penalties[jobs[0]] - p.a
-        p.earliness_penalties[jobs[n - 1]] = p.earliness_penalties[jobs[n - 1]] - p.a
-        p.tardiness_penalties[jobs[n - 1]] = p.tardiness_penalties[jobs[n - 1]] + p.a
-        start = time.process_time()
-        memo_BT = bt.init_BT_memo(jobs, p.due_dates, p.processing_times)
-        memo_ET = timing.init_ET_memo(jobs, p.due_dates, p.processing_times)
-        memo_ETI = timing.init_ETI_memo_bounded(jobs, p.due_dates)
-        _, _, eti_penalty1 = timing.opt_ETI_Bounded(memo_BT, memo_ET, memo_ETI, utils.BIG_NUMBER, n - 1, jobs, 0,
-                                                    n - 1, p)
-        end = time.process_time()
-        run_time1 += end - start
-        # print("My DP ETI = ", eti_penalty1)
-        # print("My DP runtime = ", run_time1)
-    run_time1 = run_time1 / REPEAT
-    f = open('My_DP_results.txt', 'a')
-    f.write(str(n) + "\t" + str(b) + "\t" + str(run_time1) + "\n")
+def run9(p, jobs):
+    # sys.setrecursionlimit(2000)
+    start = time.process_time()
+    memo_BT = bt.init_BT_memo(jobs, p.due_dates, p.processing_times)
+    memo_ET = et.init_ET_memo(jobs, p.due_dates, p.processing_times)
+    et_global_solution = et.init_ET_global_solution(jobs, p)
+    memo_ETI = dpb.init_ETI_memo_bounded(jobs,  p.due_dates)
+    block_lasts, _, eti_penalty1, cplex_time = dpb.opt_ETI_Bounded(memo_BT, memo_ET, memo_ETI, et_global_solution,
+                                                                   utils.BIG_NUMBER, p.n - 1, jobs, p.n - 1, p)
+    end = time.process_time()
+    run_time1 = end - start
+    num_idle = len(block_lasts) - 1
+    f = open('My_DP_Bounded_results_0715.txt', 'a')
+    f.write(
+        str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time1) + "\t" + str(eti_penalty1) + "\t" + str(
+            num_idle) + "\n")
     f.close()
 
 
-def run10(n, b):
-    jobs = list(range(n))
-    random.shuffle(jobs)
-    p = utils.generate_problem(n, b)
-    p.earliness_penalties[jobs[0]] = p.earliness_penalties[jobs[0]] + p.a
-    p.tardiness_penalties[jobs[0]] = p.tardiness_penalties[jobs[0]] - p.a
-    p.earliness_penalties[jobs[n - 1]] = p.earliness_penalties[jobs[n - 1]] - p.a
-    p.tardiness_penalties[jobs[n - 1]] = p.tardiness_penalties[jobs[n - 1]] + p.a
+def run9_0(p, jobs):
+    sys.setrecursionlimit(2000)
+    start = time.process_time()
+    memo_BT = bt.init_BT_memo(jobs, p.due_dates, p.processing_times)
+    memo_ET = et.init_ET_memo(jobs, p.due_dates, p.processing_times)
+    memo_ETI = dp.init_ETI_memo(jobs, p.due_dates)
+    _, _, eti_penalty1, cplex_time = dp.opt_ETI(memo_BT, memo_ET, memo_ETI, utils.BIG_NUMBER, jobs, p.n - 1, p)
+    end = time.process_time()
+    run_time1 = end - start
+    f = open('My_DP_results_0712.txt', 'a')
+    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time1) + "\t" + str(cplex_time) + "\n")
+    f.close()
+
+
+def run10(p, jobs):
+    sys.setrecursionlimit(1024)
     sourd = Sourd.Sourd(jobs, p)
     start = time.process_time()
-    eti_penalty2 = sourd.run()
+    obj = sourd.run()
     end = time.process_time()
     run_time2 = end - start
-    f = open('Sourd_DP_results.txt', 'a')
-    f.write(str(n) + "\t" + str(b) + "\t" + str(run_time2) + "\n")
+    f = open('Sourd_DP_results_0715.txt', 'a')
+    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time2) + "\t" + str(obj) + "\n")
     f.close()
 
 
-def run11(n, b):
-    run_time3 = 0
-    b_ratio = 0
-    for i in range(REPEAT):
-        jobs = list(range(n))
-        random.shuffle(jobs)
-        p = utils.generate_problem(n, b)
-        p.earliness_penalties[jobs[0]] = p.earliness_penalties[jobs[0]] + p.a
-        p.tardiness_penalties[jobs[0]] = p.tardiness_penalties[jobs[0]] - p.a
-        p.earliness_penalties[jobs[n - 1]] = p.earliness_penalties[jobs[n - 1]] - p.a
-        p.tardiness_penalties[jobs[n - 1]] = p.tardiness_penalties[jobs[n - 1]] + p.a
-        start = time.process_time()
-        eti_penalty3, opt_model = test.test_DP(jobs, b, p.due_dates, p.processing_times,
-                                               p.earliness_penalties, p.tardiness_penalties)
-        end = time.process_time()
-        run_time3 += end - start
-        num_idle = 0
-        for j in range(n - 1):
-            num_idle += opt_model.solution.get_value("idleness_after_job_" + str(j))
-        b_ratio += num_idle * b / eti_penalty3
-        # print("CPLEX ETI = ", eti_penalty3)
-        # print("CPLEX runtime = ", run_time3)
-    b_ratio = b_ratio / REPEAT
-    run_time3 = run_time3 / REPEAT
-    f = open('CPLEX_TIMING_results.txt', 'a')
-    f.write(str(n) + "\t" + str(b) + "\t" + str(run_time3) + "\t" + str(b_ratio) + "\n")
+def run10_1(p, jobs):
+    sys.setrecursionlimit(1024)
+    sourd = Sourd.Sourd(jobs, p)
+    start = time.process_time()
+    obj = sourd.run_bounded()
+    end = time.process_time()
+    run_time2 = end - start
+    f = open('Sourd_DP_Bounded_results_0715.txt', 'a')
+    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time2) + "\t" + str(obj) + "\n")
+    f.close()
+
+
+def run11(p, jobs):
+    start = time.process_time()
+    eti_penalty3, opt_model = test.test_DP(jobs, p.b, p.due_dates, p.processing_times, p.earliness_penalties,
+                                           p.tardiness_penalties)
+    end = time.process_time()
+    run_time3 = end - start
+    obj = opt_model.solution.get_objective_value()
+    f = open('Nes_CPLEX_TIMING_results.txt', 'a')
+    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time3) + "\t" + str(obj) + "\n")
     f.close()
 
 
@@ -308,43 +306,37 @@ if __name__ == '__main__':
     # n = 21
     # p = utils.generate_problem(n, 15, 1)
     # run3_1(p)
-    N = [6, 8, 10, 12, 14, 16, 18, 20]
-    # # N = [ 500, 400, 300, 200, 100, 50, 20]
-    # # N = [100, 200, 300]
-    B = [1, 10, 50, 100, 150, 200]
-    RHO = [0.3, 0.7, 1, 1.5, 2, 3]
+    # N = [6, 8, 10, 12, 14, 16, 18, 20]
+    N = [200, 400, 600, 800, 1000]
+    # N = [1000, 800, 600, 400, 200, 100]
+    B = [1, 10, 100, 1000, 10000, 100000]
+    # B = [100000, 10000, 1000, 100, 10, 1]
+    RHO = [0.5, 1.0, 1.5, 2.0]
+    # RHO = [0.5, 1.0, 1.5, 2.0]
     for n in N:
         for b in B:
             for rho in RHO:
-                for i in range(REPEAT):
-                    p = utils.generate_problem(n, b, rho, seed=REPEAT)
-                    # proc1 = Process(target=run5, args=(p))
-                    proc2 = Process(target=run6, args=(p,))
-                    proc3 = Process(target=run7, args=(p,))
-                    # proc4 = Process(target=run8, args=(p))
-                    # proc1.start()
+                for i in range(REPEAT + 1):
+                    p = utils.generate_problem(n, b, rho, seed=i)
+                    jobs = list(range(n))
+                    due = list(p.due_dates)
+                    process = list(p.processing_times)
+                    expected_starts = []
+                    for j in range(len(due)):
+                        expected_starts.append(due[j] - process[j])
+                    expected_starts, jobs = zip(*sorted(zip(expected_starts, jobs)))
+                    p.earliness_penalties[jobs[0]] = p.earliness_penalties[jobs[0]] + p.a
+                    p.tardiness_penalties[jobs[0]] = p.tardiness_penalties[jobs[0]] - p.a
+                    p.earliness_penalties[jobs[n - 1]] = p.earliness_penalties[jobs[n - 1]] - p.a
+                    p.tardiness_penalties[jobs[n - 1]] = p.tardiness_penalties[jobs[n - 1]] + p.a
+                    proc1 = Process(target=run9, args=(p, jobs))
+                    proc2 = Process(target=run10_1, args=(p, jobs))
+                    proc3 = Process(target=run10, args=(p, jobs))
+                    proc1.start()
                     proc2.start()
                     proc3.start()
                     # proc4.start()
-                    # proc1.join()
+                    proc1.join()
                     proc2.join()
                     proc3.join()
                     # proc4.join()
-
-    # proc5 = Process(target=run9, args=(n, b))
-    # proc6 = Process(target=run10, args=(n, b))
-    # proc7 = Process(target=run11, args=(n, b))
-    # # proc1.start()
-    # # # proc2.start()
-    # # # proc3.start()
-    # # proc4.start()
-    # proc5.start()
-    # proc6.start()
-    # proc7.start()
-    # # proc1.join()
-    # # # proc2.join()
-    # # # proc3.join()
-    # # proc4.join()
-    # proc5.join()
-    # proc6.join()
-    # proc7.join()
