@@ -233,18 +233,18 @@ def run8(p):
 
 
 def run9(p, jobs):
-    # sys.setrecursionlimit(2000)
+    sys.setrecursionlimit(1200)
     start = time.process_time()
     memo_BT = bt.init_BT_memo(jobs, p.due_dates, p.processing_times)
     memo_ET = et.init_ET_memo(jobs, p.due_dates, p.processing_times)
     et_global_solution = et.init_ET_global_solution(jobs, p)
-    memo_ETI = dpb.init_ETI_memo_bounded(jobs,  p.due_dates)
+    memo_ETI = dpb.init_ETI_memo_bounded(jobs, p.due_dates)
     block_lasts, _, eti_penalty1, cplex_time = dpb.opt_ETI_Bounded(memo_BT, memo_ET, memo_ETI, et_global_solution,
                                                                    utils.BIG_NUMBER, p.n - 1, jobs, p.n - 1, p)
     end = time.process_time()
     run_time1 = end - start
     num_idle = len(block_lasts) - 1
-    f = open('My_DP_Bounded_results_0717.txt', 'a')
+    f = open('My_DP_Bounded_results_0718.txt', 'a')
     f.write(
         str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time1) + "\t" + str(eti_penalty1) + "\t" + str(
             num_idle) + "\n")
@@ -252,7 +252,7 @@ def run9(p, jobs):
 
 
 def run9_0(p, jobs):
-    sys.setrecursionlimit(2000)
+    # sys.setrecursionlimit(2000)
     start = time.process_time()
     memo_BT = bt.init_BT_memo(jobs, p.due_dates, p.processing_times)
     memo_ET = et.init_ET_memo(jobs, p.due_dates, p.processing_times)
@@ -260,31 +260,31 @@ def run9_0(p, jobs):
     _, _, eti_penalty1, cplex_time = dp.opt_ETI(memo_BT, memo_ET, memo_ETI, utils.BIG_NUMBER, jobs, p.n - 1, p)
     end = time.process_time()
     run_time1 = end - start
-    f = open('My_DP_results_0717.txt', 'a')
+    f = open('My_DP_results_0712.txt', 'a')
     f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time1) + "\t" + str(cplex_time) + "\n")
     f.close()
 
 
 def run10(p, jobs):
-    sys.setrecursionlimit(1024)
+    sys.setrecursionlimit(1200)
     sourd = Sourd.Sourd(jobs, p)
     start = time.process_time()
     obj = sourd.run()
     end = time.process_time()
     run_time2 = end - start
-    f = open('Sourd_DP_results_0717.txt', 'a')
+    f = open('Sourd_DP_results_0718.txt', 'a')
     f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time2) + "\t" + str(obj) + "\n")
     f.close()
 
 
 def run10_1(p, jobs):
-    sys.setrecursionlimit(1024)
+    sys.setrecursionlimit(1200)
     sourd = Sourd.Sourd(jobs, p)
     start = time.process_time()
     obj = sourd.run_bounded()
     end = time.process_time()
     run_time2 = end - start
-    f = open('Sourd_DP_Bounded_results_0717.txt', 'a')
+    f = open('Sourd_DP_Bounded_results_0718.txt', 'a')
     f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time2) + "\t" + str(obj) + "\n")
     f.close()
 
@@ -307,11 +307,11 @@ if __name__ == '__main__':
     # p = utils.generate_problem(n, 15, 1)
     # run3_1(p)
     # N = [6, 8, 10, 12, 14, 16, 18, 20]
-    N = [100,1000]
+    N = [1000, 800, 600, 400, 200]
     # N = [1000, 800, 600, 400, 200, 100]
-    B = [100, 10, 100, 1000, 10000, 100000,1000000]
-    # B = [100000, 10000, 1000, 100, 10, 1]
-    RHO = [2.0, 1.0, 1.5, 2.0,2.5]
+    # B = [1, 10, 100, 1000, 10000, 100000,1000000]
+    B = [1000000, 100000, 10000, 1000, 100, 10, 1]
+    RHO = [2.5, 2.0, 1.5, 1.0, 0.5]
     # RHO = [0.5, 1.0, 1.5, 2.0]
     for n in N:
         for b in B:
@@ -330,13 +330,13 @@ if __name__ == '__main__':
                     p.earliness_penalties[jobs[n - 1]] = p.earliness_penalties[jobs[n - 1]] - p.a
                     p.tardiness_penalties[jobs[n - 1]] = p.tardiness_penalties[jobs[n - 1]] + p.a
                     proc1 = Process(target=run9, args=(p, jobs))
-                    proc2 = Process(target=run10_1, args=(p, jobs))
-                    proc3 = Process(target=run10, args=(p, jobs))
+                    # proc2 = Process(target=run10_1, args=(p, jobs))
+                    # proc3 = Process(target=run10, args=(p, jobs))
                     proc1.start()
-                    proc2.start()
-                    proc3.start()
+                    # proc2.start()
+                    # proc3.start()
                     # proc4.start()
                     proc1.join()
-                    proc2.join()
-                    proc3.join()
+                    # proc2.join()
+                    # proc3.join()
                     # proc4.join()

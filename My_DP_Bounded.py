@@ -59,7 +59,7 @@ def opt_ETI_Bounded(memoBT, memo_ET, memo_ETI_bounded, et_global_solution, upper
 
     else:
         start_UB, end_UB, et_penalty_UB, cplex_time = bt.time_block(memoBT, jobs, 0, last, problem)
-        idle_bound = min(idle_bound, num_idle_ET, math.floor((et_penalty_UB - et_penalty_ET) / problem.b))
+        idle_bound = min(idle_bound, num_idle_ET, math.floor(round(et_penalty_UB - et_penalty_ET, 4) / problem.b))
         block_lasts, end_times, eti_penalty, cplex_time = dp_Bounded(memoBT, memo_ET, memo_ETI_bounded,
                                                                      et_global_solution,
                                                                      head_last, tail_first, jobs, last, idle_bound,

@@ -1,6 +1,6 @@
 import random
 
-BIG_NUMBER = 9999999999
+BIG_NUMBER = 999999999999999
 
 
 class Block:

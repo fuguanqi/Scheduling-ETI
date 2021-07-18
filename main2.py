@@ -238,7 +238,7 @@ def run9(p, jobs):
     memo_BT = bt.init_BT_memo(jobs, p.due_dates, p.processing_times)
     memo_ET = et.init_ET_memo(jobs, p.due_dates, p.processing_times)
     et_global_solution = et.init_ET_global_solution(jobs, p)
-    memo_ETI = dpb.init_ETI_memo_bounded(jobs,  p.due_dates)
+    memo_ETI = dpb.init_ETI_memo_bounded(jobs, p.due_dates)
     block_lasts, _, eti_penalty1, cplex_time = dpb.opt_ETI_Bounded(memo_BT, memo_ET, memo_ETI, et_global_solution,
                                                                    utils.BIG_NUMBER, p.n - 1, jobs, p.n - 1, p)
     end = time.process_time()
@@ -307,11 +307,11 @@ if __name__ == '__main__':
     # p = utils.generate_problem(n, 15, 1)
     # run3_1(p)
     # N = [6, 8, 10, 12, 14, 16, 18, 20]
-    N = [1000,200, 400, 600, 800]
+    N = [1000, 800, 600, 400, 200]
     # N = [1000, 800, 600, 400, 200, 100]
-    B = [1, 10, 100, 1000, 10000, 100000,1000000]
-    # B = [100000, 10000, 1000, 100, 10, 1]
-    RHO = [0.5, 1.0, 1.5, 2.0,2.5]
+    # B = [1, 10, 100, 1000, 10000, 100000,1000000]
+    B = [1000000, 100000, 10000, 1000, 100, 10, 1]
+    RHO = [2.5, 2.0, 1.5, 1.0, 0.5]
     # RHO = [0.5, 1.0, 1.5, 2.0]
     for n in N:
         for b in B:
