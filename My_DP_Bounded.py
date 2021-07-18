@@ -36,6 +36,16 @@ def opt_ETI_Bounded(memoBT, memo_ET, memo_ETI_bounded, et_global_solution, upper
 
     block_lasts = list()
     end_times = list()
+
+    if idle_bound == 0:
+        start_UB, end_UB, et_penalty_UB, cplex_time = bt.time_block(memoBT, jobs, 0, last, problem)
+        block_lasts.append(last)
+        t = start_UB
+        for i in range(last + 1):
+            t += problem.processing_times[jobs[i]]
+            end_times.append(t)
+        return block_lasts, end_times, et_penalty_UB, 0
+
     head_last, tail_first, tail_start, et_penalty_ET, num_idle_ET = et.opt_ET(memo_ET, et_global_solution, jobs,
                                                                               problem, last)
     if head_last == last:  # if the optimal schedule of ET problem has only one block
@@ -50,8 +60,10 @@ def opt_ETI_Bounded(memoBT, memo_ET, memo_ETI_bounded, et_global_solution, upper
     else:
         start_UB, end_UB, et_penalty_UB, cplex_time = bt.time_block(memoBT, jobs, 0, last, problem)
         idle_bound = min(idle_bound, num_idle_ET, math.floor((et_penalty_UB - et_penalty_ET) / problem.b))
-        block_lasts, end_times, eti_penalty, cplex_time = dp_Bounded(memoBT, memo_ET, memo_ETI_bounded, et_global_solution,
-                                                                 head_last, tail_first, jobs, last, idle_bound, problem)
+        block_lasts, end_times, eti_penalty, cplex_time = dp_Bounded(memoBT, memo_ET, memo_ETI_bounded,
+                                                                     et_global_solution,
+                                                                     head_last, tail_first, jobs, last, idle_bound,
+                                                                     problem)
 
     num_idle = len(block_lasts) - 1
     memo_ETI_bounded[last] = ETI_solution_bounded()

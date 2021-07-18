@@ -233,7 +233,7 @@ def run8(p):
 
 
 def run9(p, jobs):
-    # sys.setrecursionlimit(2000)
+    sys.setrecursionlimit(1200)
     start = time.process_time()
     memo_BT = bt.init_BT_memo(jobs, p.due_dates, p.processing_times)
     memo_ET = et.init_ET_memo(jobs, p.due_dates, p.processing_times)
@@ -244,7 +244,7 @@ def run9(p, jobs):
     end = time.process_time()
     run_time1 = end - start
     num_idle = len(block_lasts) - 1
-    f = open('My_DP_Bounded_results_0715.txt', 'a')
+    f = open('My_DP_Bounded_results_0718.txt', 'a')
     f.write(
         str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time1) + "\t" + str(eti_penalty1) + "\t" + str(
             num_idle) + "\n")
@@ -252,7 +252,7 @@ def run9(p, jobs):
 
 
 def run9_0(p, jobs):
-    sys.setrecursionlimit(2000)
+    # sys.setrecursionlimit(2000)
     start = time.process_time()
     memo_BT = bt.init_BT_memo(jobs, p.due_dates, p.processing_times)
     memo_ET = et.init_ET_memo(jobs, p.due_dates, p.processing_times)
@@ -266,25 +266,25 @@ def run9_0(p, jobs):
 
 
 def run10(p, jobs):
-    sys.setrecursionlimit(1024)
+    sys.setrecursionlimit(1200)
     sourd = Sourd.Sourd(jobs, p)
     start = time.process_time()
     obj = sourd.run()
     end = time.process_time()
     run_time2 = end - start
-    f = open('Sourd_DP_results_0715.txt', 'a')
+    f = open('Sourd_DP_results_0718.txt', 'a')
     f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time2) + "\t" + str(obj) + "\n")
     f.close()
 
 
 def run10_1(p, jobs):
-    sys.setrecursionlimit(1024)
+    sys.setrecursionlimit(1200)
     sourd = Sourd.Sourd(jobs, p)
     start = time.process_time()
     obj = sourd.run_bounded()
     end = time.process_time()
     run_time2 = end - start
-    f = open('Sourd_DP_Bounded_results_0715.txt', 'a')
+    f = open('Sourd_DP_Bounded_results_0718.txt', 'a')
     f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time2) + "\t" + str(obj) + "\n")
     f.close()
 
@@ -307,16 +307,16 @@ if __name__ == '__main__':
     # p = utils.generate_problem(n, 15, 1)
     # run3_1(p)
     # N = [6, 8, 10, 12, 14, 16, 18, 20]
-    N = [200, 400, 600, 800, 1000]
+    N = [1000,200, 400, 600, 800]
     # N = [1000, 800, 600, 400, 200, 100]
-    B = [1, 10, 100, 1000, 10000, 100000]
+    B = [1, 10, 100, 1000, 10000, 100000,1000000]
     # B = [100000, 10000, 1000, 100, 10, 1]
-    RHO = [0.5, 1.0, 1.5, 2.0]
+    RHO = [0.5, 1.0, 1.5, 2.0,2.5]
     # RHO = [0.5, 1.0, 1.5, 2.0]
     for n in N:
         for b in B:
             for rho in RHO:
-                for i in range(REPEAT + 1):
+                for i in range(REPEAT):
                     p = utils.generate_problem(n, b, rho, seed=i)
                     jobs = list(range(n))
                     due = list(p.due_dates)
