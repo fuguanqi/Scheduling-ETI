@@ -53,7 +53,7 @@ class GA_BASIC():
         for j in range(len(due)):
             expected_starts.append(due[j] - process[j])
         expected_starts, chromo = zip(*sorted(zip(expected_starts, chromo)))
-        chromo=list(chromo)
+        chromo = list(chromo)
         CES = chromo
         objCES = self.cal_Fitness_Value(CES)
         for i in range(nCES):
@@ -95,7 +95,7 @@ class GA_BASIC():
                                                             utils.BIG_NUMBER, chromo, self.n - 1, p)
         # if self.iter == 0:
         #     print(eti_penalty)
-        # real_obj, b_ratio = self.cal_Real_Objective(chromo, block_lasts, end_times, self.problem)
+        real_obj, b_ratio = self.cal_Real_Objective(chromo, block_lasts, end_times, self.problem)
         self.memo_FV[tuple(chromo)] = utils.Solution(block_lasts, end_times, eti_penalty, 0)
         return eti_penalty
 
@@ -651,7 +651,7 @@ class GA_Faster_DP():
         et_global_solution = et.init_ET_global_solution(chromo, p)
         memo_ETI = dpb.init_ETI_memo_bounded(chromo, p.due_dates)
         block_lasts, end_times, eti_penalty, _ = dpb.opt_ETI_Bounded(memo_BT, memo_ET, memo_ETI, et_global_solution,
-                                                            utils.BIG_NUMBER, p.n - 1, chromo, self.n - 1, p)
+                                                                     utils.BIG_NUMBER, p.n - 1, chromo, self.n - 1, p)
         # if self.iter == 0:
         #     print(eti_penalty)
         real_obj, b_ratio = self.cal_Real_Objective(chromo, block_lasts, end_times, self.problem)
@@ -797,7 +797,8 @@ class GA_Faster_Select():
         due, chromo = zip(*sorted(zip(due, chromo)))
         chromo = list(chromo)
         CBD = chromo
-        objCBD = self.cal_Fitness_Value(CBD)
+        et_global_solution = et.init_ET_global_solution(CBD, self.problem)
+        objCBD = self.cal_Fitness_Value(CBD, et_global_solution)
         for i in range(nCBD):
             CBD = list(CBD)
             initial.append(CBD)
@@ -813,7 +814,8 @@ class GA_Faster_Select():
         expected_starts, chromo = zip(*sorted(zip(expected_starts, chromo)))
         chromo = list(chromo)
         CES = chromo
-        objCES = self.cal_Fitness_Value(CES)
+        et_global_solution = et.init_ET_global_solution(CES, self.problem)
+        objCES = self.cal_Fitness_Value(CES, et_global_solution)
         for i in range(nCES):
             CES = list(CES)
             initial.append(CES)
@@ -835,7 +837,7 @@ class GA_Faster_Select():
         # print("**************** initial pop ****************")
         return initial
 
-    def cal_Fitness_Value(self, chromo):
+    def cal_Fitness_Value(self, chromo, et_global_solution):
         if self.memo_FV.get(tuple(chromo)):
             return self.memo_FV[(tuple(chromo))].eti_penalty
         p = copy.deepcopy(self.problem)
@@ -843,11 +845,9 @@ class GA_Faster_Select():
         p.tardiness_penalties[chromo[0]] = p.tardiness_penalties[chromo[0]] - p.a
         p.earliness_penalties[chromo[self.n - 1]] = p.earliness_penalties[chromo[self.n - 1]] - p.a
         p.tardiness_penalties[chromo[self.n - 1]] = p.tardiness_penalties[chromo[self.n - 1]] + p.a
-
         # memos
         memo_BT = bt.init_BT_memo(chromo, p.due_dates, p.processing_times)
         memo_ET = et.init_ET_memo(chromo, p.due_dates, p.processing_times)
-        et_global_solution = et.init_ET_global_solution(chromo, p)
         memo_ETI = dp.init_ETI_memo(chromo, p.due_dates)
         block_lasts, end_times, eti_penalty, _ = dp.opt_ETI(memo_BT, memo_ET, memo_ETI, et_global_solution,
                                                             utils.BIG_NUMBER, chromo, self.n - 1, p)
@@ -909,15 +909,17 @@ class GA_Faster_Select():
             index2 = random.randint(0, self.pop_size - 1)
         chromo1 = self.pop[index1]
         chromo2 = self.pop[index2]
-        _, _, et_penalty1, _ = et.opt_ET_no_memo(chromo1, 0, self.n - 1, self.problem)
-        _, _, et_penalty2, _ = et.opt_ET_no_memo(chromo2, 0, self.n - 1, self.problem)
+        et_global_solution1 = et.init_ET_global_solution(chromo1, self.problem)
+        et_global_solution2 = et.init_ET_global_solution(chromo2, self.problem)
+        et_penalty1 = sum(et_global_solution1.block_objs)
+        et_penalty2 = sum(et_global_solution2.block_objs)
         if et_penalty1 > et_penalty2:
-            penalty2 = self.cal_Fitness_Value(chromo2)
+            penalty2 = self.cal_Fitness_Value(chromo2, et_global_solution2)
             if et_penalty1 > penalty2:
                 better_penalty = penalty2
                 new_chromo = chromo2[:]
             else:
-                penalty1 = self.cal_Fitness_Value(chromo1)
+                penalty1 = self.cal_Fitness_Value(chromo1, et_global_solution1)
                 if penalty1 > penalty2:
                     better_penalty = penalty2
                     new_chromo = chromo2[:]
@@ -925,12 +927,12 @@ class GA_Faster_Select():
                     better_penalty = penalty1
                     new_chromo = chromo1[:]
         else:
-            penalty1 = self.cal_Fitness_Value(chromo1)
+            penalty1 = self.cal_Fitness_Value(chromo1, et_global_solution1)
             if et_penalty2 > penalty1:
                 better_penalty = penalty1
                 new_chromo = chromo1[:]
             else:
-                penalty2 = self.cal_Fitness_Value(chromo2)
+                penalty2 = self.cal_Fitness_Value(chromo2, et_global_solution2)
                 if penalty1 > penalty2:
                     better_penalty = penalty2
                     new_chromo = chromo2[:]
@@ -1017,7 +1019,8 @@ class GA_Faster_Both():
         due, chromo = zip(*sorted(zip(due, chromo)))
         chromo = list(chromo)
         CBD = chromo
-        objCBD = self.cal_Fitness_Value(CBD)
+        et_global_solution = et.init_ET_global_solution(CBD, self.problem)
+        objCBD = self.cal_Fitness_Value(CBD, et_global_solution)
         for i in range(nCBD):
             CBD = list(CBD)
             initial.append(CBD)
@@ -1033,7 +1036,8 @@ class GA_Faster_Both():
         expected_starts, chromo = zip(*sorted(zip(expected_starts, chromo)))
         chromo = list(chromo)
         CES = chromo
-        objCES = self.cal_Fitness_Value(CES)
+        et_global_solution = et.init_ET_global_solution(CES, self.problem)
+        objCES = self.cal_Fitness_Value(CES, et_global_solution)
         for i in range(nCES):
             CES = list(CES)
             initial.append(CES)
@@ -1055,7 +1059,7 @@ class GA_Faster_Both():
         # print("**************** initial pop ****************")
         return initial
 
-    def cal_Fitness_Value(self, chromo):
+    def cal_Fitness_Value(self, chromo, et_global_solution):
         if self.memo_FV.get(tuple(chromo)):
             return self.memo_FV[(tuple(chromo))].eti_penalty
         p = copy.deepcopy(self.problem)
@@ -1067,7 +1071,6 @@ class GA_Faster_Both():
         # memos
         memo_BT = bt.init_BT_memo(chromo, p.due_dates, p.processing_times)
         memo_ET = et.init_ET_memo(chromo, p.due_dates, p.processing_times)
-        et_global_solution = et.init_ET_global_solution(chromo, p)
         memo_ETI = dpb.init_ETI_memo_bounded(chromo, p.due_dates)
         block_lasts, end_times, eti_penalty, _ = dpb.opt_ETI_Bounded(memo_BT, memo_ET, memo_ETI, et_global_solution,
                                                                      utils.BIG_NUMBER, p.n - 1, chromo, self.n - 1, p)
@@ -1129,15 +1132,17 @@ class GA_Faster_Both():
             index2 = random.randint(0, self.pop_size - 1)
         chromo1 = self.pop[index1]
         chromo2 = self.pop[index2]
-        _, _, et_penalty1, _ = et.opt_ET_no_memo(chromo1, 0, self.n - 1, self.problem)
-        _, _, et_penalty2, _ = et.opt_ET_no_memo(chromo2, 0, self.n - 1, self.problem)
+        et_global_solution1 = et.init_ET_global_solution(chromo1, self.problem)
+        et_global_solution2 = et.init_ET_global_solution(chromo2, self.problem)
+        et_penalty1 = sum(et_global_solution1.block_objs)
+        et_penalty2 = sum(et_global_solution2.block_objs)
         if et_penalty1 > et_penalty2:
-            penalty2 = self.cal_Fitness_Value(chromo2)
+            penalty2 = self.cal_Fitness_Value(chromo2, et_global_solution2)
             if et_penalty1 > penalty2:
                 better_penalty = penalty2
                 new_chromo = chromo2[:]
             else:
-                penalty1 = self.cal_Fitness_Value(chromo1)
+                penalty1 = self.cal_Fitness_Value(chromo1, et_global_solution1)
                 if penalty1 > penalty2:
                     better_penalty = penalty2
                     new_chromo = chromo2[:]
@@ -1145,12 +1150,12 @@ class GA_Faster_Both():
                     better_penalty = penalty1
                     new_chromo = chromo1[:]
         else:
-            penalty1 = self.cal_Fitness_Value(chromo1)
+            penalty1 = self.cal_Fitness_Value(chromo1, et_global_solution1)
             if et_penalty2 > penalty1:
                 better_penalty = penalty1
                 new_chromo = chromo1[:]
             else:
-                penalty2 = self.cal_Fitness_Value(chromo2)
+                penalty2 = self.cal_Fitness_Value(chromo2, et_global_solution2)
                 if penalty1 > penalty2:
                     better_penalty = penalty2
                     new_chromo = chromo2[:]

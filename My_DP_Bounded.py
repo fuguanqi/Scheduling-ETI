@@ -123,12 +123,12 @@ def dp_Bounded(memoBT, memo_ET, memo_ETI_bounded, et_global_solution, head_last,
                 end_times.append(t)
             return block_lasts, end_times, eti_penalty, total_cplex_time
     else:
+        tail_start, _, block_et_penalty, cplex_time = bt.time_block(memoBT, jobs, tail_first, last, problem)
         block_lasts1, end_times1, eti_penalty1, cplex_time = dp_Bounded(memoBT, memo_ET, memo_ETI_bounded,
                                                                         et_global_solution, head_last, tail_first - 1,
                                                                         jobs, last, idle_bound, problem)
-        total_cplex_time += cplex_time
-        tail_start, _, block_et_penalty, cplex_time = bt.time_block(memoBT, jobs, tail_first, last, problem)
-        total_cplex_time += cplex_time
+        if problem.due_dates[jobs[tail_first-1]]>=tail_start:
+            return block_lasts1, end_times1, eti_penalty1, total_cplex_time
         block_lasts2, end_times2, eti_penalty2, cplex_time = opt_ETI_Bounded(memoBT, memo_ET, memo_ETI_bounded,
                                                                              et_global_solution, tail_start,
                                                                              idle_bound - 1, jobs,
