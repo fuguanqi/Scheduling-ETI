@@ -116,7 +116,6 @@ class Sourd:
                     best_obj = obj
                     num_idle = sub_num_idle
         else:
-            num_idle = -99
             if n == len(self.jobs) - 1:
                 for t in self.vs[n]:
                     sub_obj, sub_num_idle = self.dp_bounded(n - 1, t - self.problem.processing_times[self.jobs[n]], 0)
@@ -124,15 +123,22 @@ class Sourd:
                     if obj < best_obj:
                         best_obj = obj
                         num_idle = 0
-            elif n == 0:
-                best_obj = self.et(n, bound)
-                num_idle = 0
             else:
-                sub_obj, sub_num_idle = self.dp_bounded(n - 1, bound - self.problem.processing_times[self.jobs[n]], 0)
-                obj = self.et(n, bound) + sub_obj
-                if obj < best_obj:
-                    best_obj = obj
-                    num_idle = 0
+                best_obj = 0
+                t = bound
+                for i in range(n, -1, -1):
+                    best_obj += self.et(i, t)
+                    t -= self.problem.processing_times[self.jobs[i]]
+                num_idle = 0
+            # elif n == 0:
+            #     best_obj = self.et(n, bound)
+            #     num_idle = 0
+            # else:
+            #     sub_obj, sub_num_idle = self.dp_bounded(n - 1, bound - self.problem.processing_times[self.jobs[n]], 0)
+            #     obj = self.et(n, bound) + sub_obj
+            #     if obj < best_obj:
+            #         best_obj = obj
+            #         num_idle = 0
             return best_obj, num_idle
         self.memo[n][bound] = Solution(best_obj, num_idle)
         if num_idle > idle_bound:
