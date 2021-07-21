@@ -31,11 +31,11 @@ def opt_ETI(memoBT, memo_ET, memo_ETI, et_global_solution, upper_bound, jobs, la
             memo_ETI[last].end_times), eti_penalty, total_cplex_time
     block_lasts = list()
     end_times = list()
-    head_last, tail_first, tail_start, et_penalty, num_idle = et.opt_ET(memo_ET, et_global_solution, jobs, problem,
+    et_slt = et.opt_ET(memo_ET, et_global_solution, jobs, problem,
                                                                         last)
-    if head_last == last:  # if the optimal schedule of ET problem has only one block
-        block_start = tail_start
-        eti_penalty = et_penalty
+    if et_slt.head_last == last:  # if the optimal schedule of ET problem has only one block
+        block_start = et_slt.tail_start
+        eti_penalty = et_slt.et_penalty
         block_lasts.append(last)
         t = block_start
         for j in range(last + 1):
@@ -44,7 +44,7 @@ def opt_ETI(memoBT, memo_ET, memo_ETI, et_global_solution, upper_bound, jobs, la
 
     else:
         block_lasts, end_times, eti_penalty, cplex_time = dp(memoBT, memo_ET, memo_ETI, et_global_solution,
-                                                             head_last, tail_first, jobs, last, problem)
+                                                             et_slt.head_last, et_slt.tail_first, jobs, last, problem)
         total_cplex_time += cplex_time
     memo_ETI[last].block_lasts = list(block_lasts)
     memo_ETI[last].end_times = list(end_times)

@@ -43,11 +43,18 @@ def opt_ETI_Bounded(memoBT, memo_ET, memo_ETI_bounded, et_global_solution, upper
             end_times.append(t)
         return block_lasts, end_times, et_penalty_UB, 0
 
-    head_last, tail_first, tail_start, et_penalty_ET, num_idle_ET = et.opt_ET(memo_ET, et_global_solution, jobs,
-                                                                              problem, last)
-    if head_last == last:  # if the optimal schedule of ET problem has only one block
-        block_start = tail_start
-        eti_penalty = et_penalty_ET
+    et_slt = et.opt_ET(memo_ET, et_global_solution, jobs, problem, last)
+
+    # new lemma 5
+    if et_slt.tail_end > upper_bound:
+        et_penalty_boundary, _ = et.opt_ET_with_boundary(jobs, 0, last, problem, upper_bound)
+        delta_et = et_penalty_boundary - et_slt.et_penalty
+        if et_slt.num_idle*problem.b<delta_et:
+            return block_lasts, end_times, utils.BIG_NUMBER, 0
+
+    if et_slt.tail_first <= et_global_solution.block_lasts[0]:
+        block_start, end_UB, et_penalty_UB, cplex_time = bt.time_block(memoBT, jobs, 0, last, problem)
+        eti_penalty = et_penalty_UB
         block_lasts.append(last)
         t = block_start
         for j in range(last + 1):
@@ -56,10 +63,11 @@ def opt_ETI_Bounded(memoBT, memo_ET, memo_ETI_bounded, et_global_solution, upper
 
     else:
         start_UB, end_UB, et_penalty_UB, cplex_time = bt.time_block(memoBT, jobs, 0, last, problem)
-        idle_bound = min(idle_bound, num_idle_ET, math.floor(round(et_penalty_UB - et_penalty_ET, 4) / problem.b))
+        idle_bound = min(idle_bound, et_slt.num_idle,
+                         math.floor(round(et_penalty_UB - et_slt.et_penalty, 4) / problem.b))
         block_lasts, end_times, eti_penalty, cplex_time = dp_Bounded(memoBT, memo_ET, memo_ETI_bounded,
-                                                                     et_global_solution,
-                                                                     head_last, tail_first, jobs, last, idle_bound,
+                                                                     et_global_solution, et_slt.head_last,
+                                                                     et_slt.tail_first, jobs, last, idle_bound,
                                                                      problem)
 
     num_idle = len(block_lasts) - 1
@@ -123,8 +131,8 @@ def dp_Bounded(memoBT, memo_ET, memo_ETI_bounded, et_global_solution, head_last,
         block_lasts1, end_times1, eti_penalty1, cplex_time = dp_Bounded(memoBT, memo_ET, memo_ETI_bounded,
                                                                         et_global_solution, head_last, tail_first - 1,
                                                                         jobs, last, idle_bound, problem)
-        #new lemma 4
-        if problem.due_dates[jobs[tail_first - 1]] >= tail_start or tail_first<=et_global_solution.block_lasts[0]:
+        # new lemma 4
+        if problem.due_dates[jobs[tail_first - 1]] >= tail_start:
             return block_lasts1, end_times1, eti_penalty1, total_cplex_time
         block_lasts2, end_times2, eti_penalty2, cplex_time = opt_ETI_Bounded(memoBT, memo_ET, memo_ETI_bounded,
                                                                              et_global_solution, tail_start,
