@@ -244,7 +244,7 @@ def run9(p, jobs):
     end = time.process_time()
     run_time1 = end - start
     num_idle = len(block_lasts) - 1
-    f = open('My_DP_Bounded_results_0718.txt', 'a')
+    f = open('My_DP_Bounded_results_0719.txt', 'a')
     f.write(
         str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time1) + "\t" + str(eti_penalty1) + "\t" + str(
             num_idle) + "\n")
@@ -272,7 +272,7 @@ def run10(p, jobs):
     obj = sourd.run()
     end = time.process_time()
     run_time2 = end - start
-    f = open('Sourd_DP_results_0718.txt', 'a')
+    f = open('Sourd_DP_results_0719.txt', 'a')
     f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time2) + "\t" + str(obj) + "\n")
     f.close()
 
@@ -284,7 +284,7 @@ def run10_1(p, jobs):
     obj = sourd.run_bounded()
     end = time.process_time()
     run_time2 = end - start
-    f = open('Sourd_DP_Bounded_results_0718.txt', 'a')
+    f = open('Sourd_DP_Bounded_results_0719.txt', 'a')
     f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time2) + "\t" + str(obj) + "\n")
     f.close()
 
@@ -307,17 +307,17 @@ if __name__ == '__main__':
     # p = utils.generate_problem(n, 15, 1)
     # run3_1(p)
     # N = [6, 8, 10, 12, 14, 16, 18, 20]
-    N = [1000, 800, 600, 400, 200]
+    N = [400]
     # N = [1000, 800, 600, 400, 200, 100]
     # B = [1, 10, 100, 1000, 10000, 100000,1000000]
-    B = [1000000, 100000, 10000, 1000, 100, 10, 1]
-    RHO = [2.5, 2.0, 1.5, 1.0, 0.5]
-    # RHO = [0.5, 1.0, 1.5, 2.0]
+    B = [ 10000]
+    # RHO = [2.5, 2.0, 1.5, 1.0, 0.5]
+    RHO = [ 2.0]
     for n in N:
         for b in B:
             for rho in RHO:
                 for i in range(REPEAT):
-                    p = utils.generate_problem(n, b, rho, seed=i)
+                    p = utils.generate_problem(n, b, rho, seed=5)
                     jobs = list(range(n))
                     due = list(p.due_dates)
                     process = list(p.processing_times)
@@ -330,13 +330,13 @@ if __name__ == '__main__':
                     p.earliness_penalties[jobs[n - 1]] = p.earliness_penalties[jobs[n - 1]] - p.a
                     p.tardiness_penalties[jobs[n - 1]] = p.tardiness_penalties[jobs[n - 1]] + p.a
                     proc1 = Process(target=run9, args=(p, jobs))
-                    # proc2 = Process(target=run10_1, args=(p, jobs))
-                    # proc3 = Process(target=run10, args=(p, jobs))
-                    proc1.start()
-                    # proc2.start()
+                    proc2 = Process(target=run10_1, args=(p, jobs))
+                    proc3 = Process(target=run10, args=(p, jobs))
+                    # proc1.start()
+                    proc2.start()
                     # proc3.start()
                     # proc4.start()
-                    proc1.join()
-                    # proc2.join()
+                    # proc1.join()
+                    proc2.join()
                     # proc3.join()
                     # proc4.join()

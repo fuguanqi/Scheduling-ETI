@@ -245,7 +245,7 @@ def run9(p, jobs):
     end = time.process_time()
     run_time1 = end - start
     num_idle = len(block_lasts) - 1
-    f = open('My_DP_Bounded_results_0725.txt', 'a')
+    f = open('My_DP_Bounded_0725.txt', 'a')
     f.write(
         str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time1) + "\t" + str(eti_penalty1) + "\t" + str(
             num_idle) + "\n")
@@ -331,14 +331,14 @@ if __name__ == '__main__':
                     p.tardiness_penalties[jobs[0]] = p.tardiness_penalties[jobs[0]] - p.a
                     p.earliness_penalties[jobs[n - 1]] = p.earliness_penalties[jobs[n - 1]] - p.a
                     p.tardiness_penalties[jobs[n - 1]] = p.tardiness_penalties[jobs[n - 1]] + p.a
-                    proc1 = Process(target=run9, args=(p, jobs))
-                    # proc2 = Process(target=run10_1, args=(p, jobs))
-                    # proc3 = Process(target=run10, args=(p, jobs))
-                    proc1.start()
-                    # proc2.start()
-                    # proc3.start()
+                    # proc1 = Process(target=run9, args=(p, jobs))
+                    proc2 = Process(target=run10_1, args=(p, jobs))
+                    proc3 = Process(target=run10, args=(p, jobs))
+                    # proc1.start()
+                    proc2.start()
+                    proc3.start()
                     # proc4.start()
-                    proc1.join()
-                    # proc2.join()
-                    # proc3.join()
+                    # proc1.join()
+                    proc2.join()
+                    proc3.join()
                     # proc4.join()
