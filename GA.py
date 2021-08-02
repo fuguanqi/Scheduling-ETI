@@ -8,7 +8,7 @@ import utils
 from Sourd import Sourd
 
 POP_SIZE = 50
-MAX_ITER = 50
+MAX_ITER = 500
 CROSS_RATE = 0.7
 MUT_RATE = 0.20
 
@@ -90,7 +90,7 @@ class GA_BASIC():
         memo_BT = bt.init_BT_memo(chromo, p.due_dates, p.processing_times)
         memo_ET = et.init_ET_memo(chromo, p.due_dates, p.processing_times)
         et_global_solution = et.init_ET_global_solution(chromo, p)
-        memo_ETI = dp.init_ETI_memo(chromo, p.due_dates)
+        memo_ETI = dp.init_ETI_memo(chromo)
         block_lasts, end_times, eti_penalty, _ = dp.opt_ETI(memo_BT, memo_ET, memo_ETI, et_global_solution,
                                                             utils.BIG_NUMBER, chromo, self.n - 1, p)
         # if self.iter == 0:
@@ -207,6 +207,9 @@ class GA_BASIC():
     def run(self):
         self.pop = self.generate_Initial()
         for i in range(self.max_iter):
+            if i > 30:
+                if self.memo_opt[-1]==self.memo_opt[-11]:
+                    break
             new_pop = self.generate_Next_Pop()
             self.pop = new_pop
         return
@@ -387,6 +390,9 @@ class GA_Sourd_DP():
     def run(self):
         self.pop = self.generate_Initial()
         for i in range(self.max_iter):
+            if i > 30:
+                if self.memo_opt[-1]==self.memo_opt[-11]:
+                    break
             new_pop = self.generate_Next_Pop()
             self.pop = new_pop
         return
@@ -567,6 +573,9 @@ class GA_Sourd_Bounded():
     def run(self):
         self.pop = self.generate_Initial()
         for i in range(self.max_iter):
+            if i > 30:
+                if self.memo_opt[-1]==self.memo_opt[-11]:
+                    break
             new_pop = self.generate_Next_Pop()
             self.pop = new_pop
         return
@@ -649,7 +658,7 @@ class GA_Faster_DP():
         memo_BT = bt.init_BT_memo(chromo, p.due_dates, p.processing_times)
         memo_ET = et.init_ET_memo(chromo, p.due_dates, p.processing_times)
         et_global_solution = et.init_ET_global_solution(chromo, p)
-        memo_ETI = dpb.init_ETI_memo_bounded(chromo, p.due_dates)
+        memo_ETI = dpb.init_ETI_memo_bounded(chromo)
         block_lasts, end_times, eti_penalty, _ = dpb.opt_ETI_Bounded(memo_BT, memo_ET, memo_ETI, et_global_solution,
                                                                      utils.BIG_NUMBER, p.n - 1, chromo, self.n - 1, p)
         # if self.iter == 0:
@@ -766,6 +775,9 @@ class GA_Faster_DP():
     def run(self):
         self.pop = self.generate_Initial()
         for i in range(self.max_iter):
+            if i > 30:
+                if self.memo_opt[-1]==self.memo_opt[-11]:
+                    break
             new_pop = self.generate_Next_Pop()
             self.pop = new_pop
         return
@@ -848,7 +860,7 @@ class GA_Faster_Select():
         # memos
         memo_BT = bt.init_BT_memo(chromo, p.due_dates, p.processing_times)
         memo_ET = et.init_ET_memo(chromo, p.due_dates, p.processing_times)
-        memo_ETI = dp.init_ETI_memo(chromo, p.due_dates)
+        memo_ETI = dp.init_ETI_memo(chromo)
         block_lasts, end_times, eti_penalty, _ = dp.opt_ETI(memo_BT, memo_ET, memo_ETI, et_global_solution,
                                                             utils.BIG_NUMBER, chromo, self.n - 1, p)
         # if self.iter == 0:
@@ -988,6 +1000,9 @@ class GA_Faster_Select():
     def run(self):
         self.pop = self.generate_Initial()
         for i in range(self.max_iter):
+            if i > 30:
+                if self.memo_opt[-1]==self.memo_opt[-11]:
+                    break
             new_pop = self.generate_Next_Pop()
             self.pop = new_pop
         return
@@ -1071,7 +1086,7 @@ class GA_Faster_Both():
         # memos
         memo_BT = bt.init_BT_memo(chromo, p.due_dates, p.processing_times)
         memo_ET = et.init_ET_memo(chromo, p.due_dates, p.processing_times)
-        memo_ETI = dpb.init_ETI_memo_bounded(chromo, p.due_dates)
+        memo_ETI = dpb.init_ETI_memo_bounded(chromo)
         block_lasts, end_times, eti_penalty, _ = dpb.opt_ETI_Bounded(memo_BT, memo_ET, memo_ETI, et_global_solution,
                                                                      utils.BIG_NUMBER, p.n - 1, chromo, self.n - 1, p)
         # if self.iter == 0:
@@ -1211,6 +1226,9 @@ class GA_Faster_Both():
     def run(self):
         self.pop = self.generate_Initial()
         for i in range(self.max_iter):
+            if i > 30:
+                if self.memo_opt[-1]==self.memo_opt[-11]:
+                    break
             new_pop = self.generate_Next_Pop()
             self.pop = new_pop
         return
