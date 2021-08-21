@@ -193,7 +193,7 @@ def opt_ET_no_memo(jobs, first, last, problem):
     return head_last, tail_first, et_penalty, num_idle
 
 
-def opt_ET_with_boundary(jobs, first, last, problem, boundary):
+def opt_ET_with_boundary(jobs, last, problem, boundary):
     para_due_dates = problem.due_dates
     para_processing_times = problem.processing_times
     para_earliness_penalties = problem.earliness_penalties
@@ -202,7 +202,7 @@ def opt_ET_with_boundary(jobs, first, last, problem, boundary):
     opt_model = cpx.Model(name="Calculate E/T Model")
     opt_model.parameters.simplex.tolerances.feasibility = 0.0000001
 
-    n = last - first + 1
+    n = last + 1
 
     # Decision parameters
     end_times = opt_model.continuous_var_list(n, lb=0, name="end_time_of_job_%s")
@@ -211,13 +211,13 @@ def opt_ET_with_boundary(jobs, first, last, problem, boundary):
 
     # constraint
     opt_model.add_constraints_(
-        end_times[i] + para_processing_times[jobs[first + i + 1]] <= end_times[i + 1]
+        end_times[i] + para_processing_times[jobs[i + 1]] <= end_times[i + 1]
         for i in range(n - 1)
     )
 
     # constraint
     opt_model.add_constraints_(
-        end_times[i] + earlis[i] - tardis[i] == para_due_dates[jobs[first + i]] for i in range(n)
+        end_times[i] + earlis[i] - tardis[i] == para_due_dates[jobs[i]] for i in range(n)
     )
 
     # constraint
@@ -227,7 +227,7 @@ def opt_ET_with_boundary(jobs, first, last, problem, boundary):
 
     # Objective function
     objective_function = opt_model.sum(
-        earlis[i] * para_earliness_penalties[jobs[first + i]] + tardis[i] * para_tardiness_penalties[jobs[first + i]]
+        earlis[i] * para_earliness_penalties[jobs[i]] + tardis[i] * para_tardiness_penalties[jobs[i]]
         for i in range(n)
     )
 
@@ -235,13 +235,13 @@ def opt_ET_with_boundary(jobs, first, last, problem, boundary):
     opt_model.minimize(objective_function)
     opt_model.solve()
     head_last = last
-    tail_first = first
+    tail_first = 0
     is_head = 1
     num_idle = 0
     for i in range(n - 1):
         end1 = opt_model.solution.get_value("end_time_of_job_" + str(i))
         end2 = opt_model.solution.get_value("end_time_of_job_" + str(i + 1))
-        if round(end1 + para_processing_times[jobs[first + i + 1]], 4) != round(end2, 4):
+        if round(end1 + para_processing_times[jobs[i + 1]], 4) != round(end2, 4):
             if is_head == 1:
                 head_last = i
                 is_head = 0
@@ -255,6 +255,6 @@ def opt_ET_with_boundary(jobs, first, last, problem, boundary):
             break
 
     et_penalty = opt_model.solution.get_objective_value()
-    end_time=opt_model.solution.get_value("end_time_of_job_" + str(last))
+    end_time = opt_model.solution.get_value("end_time_of_job_" + str(last))
 
     return et_penalty, num_idle

@@ -241,7 +241,7 @@ def run9(p, jobs):
     et_global_solution = et.init_ET_global_solution(jobs, p)
     memo_ETI = dpb.init_ETI_memo_bounded(jobs)
     block_lasts, _, eti_penalty1 = dpb.opt_ETI_Bounded(memo_BT, memo_ET, memo_ETI, et_global_solution,
-                                                       p.n - 1, jobs, p.n - 1, p)
+                                                                p.n - 1, jobs, p.n - 1, p)
     end = time.process_time()
     run_time1 = end - start
     num_idle = len(block_lasts) - 1
@@ -257,16 +257,13 @@ def run9_0(p, jobs):
     start = time.process_time()
     memo_BT = bt.init_BT_memo(jobs, p.due_dates, p.processing_times)
     memo_ET = et.init_ET_memo(jobs, p.due_dates, p.processing_times)
-    memo_ETI = dp.init_ETI_memo(jobs)
-    et_global_solution = et.init_ET_global_solution(jobs, p)
-    block_lasts, _, eti_penalty1 = dp.opt_ETI(memo_BT, memo_ET, memo_ETI, et_global_solution, jobs, p.n - 1, p)
+    memo_ETI = dp.init_ETI_memo(jobs, p.due_dates)
+    block_lasts, _, eti_penalty1 = dp.opt_ETI(memo_BT, memo_ET, memo_ETI, jobs, p.n - 1, p)
     end = time.process_time()
     run_time1 = end - start
     num_idle = len(block_lasts) - 1
-    f = open('My_DP_0821.txt', 'a')
-    f.write(
-        str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time1) + "\t" + str(eti_penalty1) + "\t" + str(
-            num_idle) + "\n")
+    f = open('My_DP_results_0821.txt', 'a')
+    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time1) + "\t" + str(num_idle) + "\n")
     f.close()
 
 
@@ -316,13 +313,13 @@ if __name__ == '__main__':
     N = [1000, 800, 600, 400, 200]
     # B = [1000, 100, 10, 1]
     B = [100000, 10000, 1000, 100, 10, 1]
-    RHO = [0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
+    RHO = [0.7,0.6,0.5,0.4, 0.3, 0.2,0.1]
     # RHO = [0.5, 1.0, 1.5, 2.0]
     for n in N:
         for b in B:
             for rho in RHO:
                 for i in range(REPEAT):
-                    p = utils.generate_problem(n, b, rho, seed=9)
+                    p = utils.generate_problem(n, b, rho, seed=i)
                     jobs = list(range(n))
                     random.shuffle(jobs)
                     # due = list(p.due_dates)
@@ -336,13 +333,13 @@ if __name__ == '__main__':
                     p.earliness_penalties[jobs[n - 1]] = p.earliness_penalties[jobs[n - 1]] - p.a
                     p.tardiness_penalties[jobs[n - 1]] = p.tardiness_penalties[jobs[n - 1]] + p.a
                     # proc1 = Process(target=run9, args=(p, jobs))
-                    proc2 = Process(target=run9_0, args=(p, jobs))
-                    # proc3 = Process(target=run10, args=(p, jobs))
+                    # proc2 = Process(target=run10_1, args=(p, jobs))
+                    proc3 = Process(target=run10, args=(p, jobs))
                     # proc1.start()
-                    proc2.start()
-                    # proc3.start()
+                    # proc2.start()
+                    proc3.start()
                     # proc4.start()
                     # proc1.join()
-                    proc2.join()
-                    # proc3.join()
+                    # proc2.join()
+                    proc3.join()
                     # proc4.join()

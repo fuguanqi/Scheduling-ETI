@@ -133,3 +133,4 @@ def time_block_no_memo(jobs, first, last, problem):
     # print("E/T penalty:", et_penalty)
     # print("**************** Block Timing Finished ****************")
     return block_start, block_end, et_penalty,cplex_time
+

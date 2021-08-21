@@ -4,7 +4,7 @@ import utils as utils
 import time
 import GA
 
-REPEAT = 10
+REPEAT = 30
 
 
 def run5(p):
@@ -13,10 +13,9 @@ def run5(p):
     ga.run()
     end = time.process_time()
     run_time = end - start
-    f = open('GA_My_DP_0717.txt', 'a')
-    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time) + "\t" + str(
-        ga.memo_opt[ga.max_iter]) + "\t" + str(ga.memo_opt[ga.max_iter - 5]) + "\t" + str(
-        ga.memo_opt[ga.max_iter - 10]) + "\n")
+    f = open('GA_My_DP_0801.txt', 'a')
+    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time) + "\t" + str(ga.memo_opt[-1]) + "\t"
+            + str(ga.memo_opt[-5]) + "\t" + str(ga.memo_opt[- 10]) + "\n")
     f.close()
 
 
@@ -26,10 +25,9 @@ def run6(p):
     ga.run()
     end = time.process_time()
     run_time = end - start
-    f = open('GA_My_DP_Bound1_0717.txt', 'a')
-    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time) + "\t" + str(
-        ga.memo_opt[ga.max_iter]) + "\t" + str(ga.memo_opt[ga.max_iter - 5]) + "\t" + str(
-        ga.memo_opt[ga.max_iter - 10]) + "\n")
+    f = open('GA_My_DP_Bound1_0801.txt', 'a')
+    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time) + "\t" + str(ga.memo_opt[-1]) + "\t"
+            + str(ga.memo_opt[-5]) + "\t" + str(ga.memo_opt[- 10]) + "\n")
     f.close()
 
 
@@ -39,10 +37,9 @@ def run7(p):
     ga.run()
     end = time.process_time()
     run_time = end - start
-    f = open('GA_bound2.txt', 'a')
-    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time) + "\t" + str(
-        ga.memo_opt[ga.max_iter]) + "\t" + str(ga.memo_opt[ga.max_iter - 5]) + "\t" + str(
-        ga.memo_opt[ga.max_iter - 10]) + "\n")
+    f = open('GA_bound2_0801.txt', 'a')
+    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time) + "\t" + str(ga.memo_opt[-1]) + "\t"
+            + str(ga.memo_opt[-5]) + "\t" + str(ga.memo_opt[- 10]) + "\n")
     f.close()
 
 
@@ -52,10 +49,9 @@ def run8(p):
     ga.run()
     end = time.process_time()
     run_time = end - start
-    f = open('GA_bound_1&2_0717.txt', 'a')
-    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time) + "\t" + str(
-        ga.memo_opt[ga.max_iter]) + "\t" + str(ga.memo_opt[ga.max_iter - 5]) + "\t" + str(
-        ga.memo_opt[ga.max_iter - 10]) + "\n")
+    f = open('GA_bound_1&2_0801.txt', 'a')
+    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time) + "\t" + str(ga.memo_opt[-1]) + "\t"
+            + str(ga.memo_opt[-5]) + "\t" + str(ga.memo_opt[- 10]) + "\n")
     f.close()
 
 
@@ -65,10 +61,9 @@ def run13(p):
     ga.run()
     end = time.process_time()
     run_time = end - start
-    f = open('GA_Sourd_0717.txt', 'a')
-    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time) + "\t" + str(
-        ga.memo_opt[ga.max_iter]) + "\t" + str(ga.memo_opt[ga.max_iter - 5]) + "\t" + str(
-        ga.memo_opt[ga.max_iter - 10]) + "\n")
+    f = open('GA_Sourd_0801.txt', 'a')
+    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time) + "\t" + str(ga.memo_opt[-1]) + "\t"
+            + str(ga.memo_opt[-5]) + "\t" + str(ga.memo_opt[- 10]) + "\n")
     f.close()
 
 
@@ -79,9 +74,8 @@ def run14(p):
     end = time.process_time()
     run_time = end - start
     f = open('GA_Sourd_bound1_0717.txt', 'a')
-    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time) + "\t" + str(
-        ga.memo_opt[ga.max_iter]) + "\t" + str(ga.memo_opt[ga.max_iter - 5]) + "\t" + str(
-        ga.memo_opt[ga.max_iter - 10]) + "\n")
+    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time) + "\t" + str(ga.memo_opt[-1]) + "\t"
+            + str(ga.memo_opt[-5]) + "\t" + str(ga.memo_opt[- 10]) + "\n")
     f.close()
 
 
@@ -96,7 +90,7 @@ if __name__ == '__main__':
     B = [1, 10, 100, 1000]
     # B = [50, 70, 90, 110, 130]
     # B = [10, 100, 300, 500, 700, 900]
-    RHO = [0.5, 1.0, 1.5, 2.0, 2.5]
+    RHO = [0.3, 0.6, 0.9, 1.2, 1.5]
     for n in N:
         for b in B:
             for rho in RHO:

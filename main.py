@@ -13,7 +13,7 @@ import My_DP as dp
 import My_DP_Bounded as dpb
 import ET_opt as et
 
-REPEAT = 10
+REPEAT = 30
 
 
 def run1(problem):

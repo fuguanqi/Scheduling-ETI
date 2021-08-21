@@ -9,7 +9,6 @@ class ETI_solution_bounded:
         self.block_lasts = list()
         self.end_times = list()
         self.eti_penalty = -1
-        self.num_idle = -1
 
 
 def init_ETI_memo_bounded(jobs):
@@ -20,132 +19,111 @@ def init_ETI_memo_bounded(jobs):
     return memo_ETI
 
 
-def opt_ETI_Bounded(memoBT, memo_ET, memo_ETI_bounded, et_global_solution, upper_bound, idle_bound, jobs, last,
-                    problem):
+def opt_ETI_Bounded(memoBT, memo_ET, memo_ETI_bounded, et_global_solution, idle_bound, jobs, last, problem):
     if memo_ETI_bounded[last].eti_penalty >= 0:
         eti_penalty = memo_ETI_bounded[last].eti_penalty
-        if memo_ETI_bounded[last].end_times[last] >= upper_bound:
-            eti_penalty = utils.BIG_NUMBER
-        elif memo_ETI_bounded[last].num_idle > idle_bound:
-            eti_penalty = utils.BIG_NUMBER
         return list(memo_ETI_bounded[last].block_lasts), list(
-            memo_ETI_bounded[last].end_times), eti_penalty, 0
+            memo_ETI_bounded[last].end_times), eti_penalty
 
     block_lasts = list()
     end_times = list()
-
-    if idle_bound == 0:
-        start_UB, end_UB, et_penalty_UB, cplex_time = bt.time_block(memoBT, jobs, 0, last, problem)
-        block_lasts.append(last)
-        t = start_UB
-        for i in range(last + 1):
-            t += problem.processing_times[jobs[i]]
-            end_times.append(t)
-        return block_lasts, end_times, et_penalty_UB, 0
-
     et_slt = et.opt_ET(memo_ET, et_global_solution, jobs, problem, last)
-
-    # new lemma 5
-    if et_slt.tail_end > upper_bound:
-        et_penalty_boundary, _ = et.opt_ET_with_boundary(jobs, 0, last, problem, upper_bound)
-        delta_et = et_penalty_boundary - et_slt.et_penalty
-        if et_slt.num_idle*problem.b<delta_et:
-            return block_lasts, end_times, utils.BIG_NUMBER, 0
-
     if et_slt.tail_first <= et_global_solution.block_lasts[0]:
-        block_start, end_UB, et_penalty_UB, cplex_time = bt.time_block(memoBT, jobs, 0, last, problem)
+        block_start, end_UB, et_penalty_UB, _ = bt.time_block(memoBT, jobs, 0, last, problem)
         eti_penalty = et_penalty_UB
         block_lasts.append(last)
         t = block_start
         for j in range(last + 1):
             t = t + problem.processing_times[jobs[j]]
             end_times.append(t)
-
     else:
-        start_UB, end_UB, et_penalty_UB, cplex_time = bt.time_block(memoBT, jobs, 0, last, problem)
+        start_UB, end_UB, et_penalty_UB, _ = bt.time_block(memoBT, jobs, 0, last, problem)
         idle_bound = min(idle_bound, et_slt.num_idle,
                          math.floor(round(et_penalty_UB - et_slt.et_penalty, 4) / problem.b))
-        block_lasts, end_times, eti_penalty, cplex_time = dp_Bounded(memoBT, memo_ET, memo_ETI_bounded,
-                                                                     et_global_solution, et_slt.head_last,
-                                                                     et_slt.tail_first, jobs, last, idle_bound,
-                                                                     problem)
+        if idle_bound == 0:
+            block_lasts.append(last)
+            t = start_UB
+            for i in range(last + 1):
+                t += problem.processing_times[jobs[i]]
+                end_times.append(t)
+            return block_lasts, end_times, et_penalty_UB
+        else:
+            block_lasts, end_times, eti_penalty = dp_Bounded(memoBT, memo_ET, memo_ETI_bounded, et_global_solution,
+                                                             min(et_slt.tail_first,
+                                                                 et_global_solution.block_lasts[-2] + 1), jobs, last,
+                                                             idle_bound, problem)
 
-    num_idle = len(block_lasts) - 1
     memo_ETI_bounded[last].block_lasts = list(block_lasts)
     memo_ETI_bounded[last].end_times = list(end_times)
     memo_ETI_bounded[last].eti_penalty = eti_penalty
-    memo_ETI_bounded[last].num_idle = num_idle
-    if num_idle > idle_bound:
-        eti_penalty = utils.BIG_NUMBER
-    if end_times[last] >= upper_bound:
-        eti_penalty = utils.BIG_NUMBER
-    return block_lasts, end_times, eti_penalty, 0
+    return block_lasts, end_times, eti_penalty
 
 
-def dp_Bounded(memoBT, memo_ET, memo_ETI_bounded, et_global_solution, head_last, tail_first, jobs, last,
+def dp_Bounded(memoBT, memo_ET, memo_ETI_bounded, et_global_solution, tail_first, jobs, last,
                idle_bound, problem):
-    # print("Cal_Value *** head_last:", head_last, ", tail_first:", tail_first, ", first:", first, ", last:", last,
-    # ", idle_bound:", idle_bound)
-    b = problem.b
-    para_processing_times = problem.processing_times
     block_lasts = list()
     end_times = list()
-    total_cplex_time = 0
-    if head_last == tail_first - 1:
-        merged_block_start, _, merged_et_penalty, cplex_time = bt.time_block(memoBT, jobs, 0, last, problem)
-        total_cplex_time += cplex_time
-        block_start1, block_end1, et_penalty1, cplex_time = bt.time_block(memoBT, jobs, 0, head_last, problem)
-        total_cplex_time += cplex_time
-        block_start2, _, et_penalty2, cplex_time = bt.time_block(memoBT, jobs, tail_first, last, problem)
-        total_cplex_time += cplex_time
+    if et_global_solution.block_lasts[0] == tail_first - 1:
+        merged_block_start, _, merged_et_penalty, _ = bt.time_block(memoBT, jobs, 0, last, problem)
+        block_start1, block_end1, et_penalty1, _ = bt.time_block(memoBT, jobs, 0, et_global_solution.block_lasts[0],
+                                                                 problem)
+        block_start2, _, et_penalty2, _ = bt.time_block(memoBT, jobs, tail_first, last, problem)
         if block_end1 >= block_start2:
             two_block_eti_penalty = utils.BIG_NUMBER
         else:
-            two_block_eti_penalty = et_penalty1 + et_penalty2 + b
-
-        # print("merged_et_penalty= ", merged_et_penalty)
-        # print("two_block_eti_penalty= ", two_block_eti_penalty)
+            two_block_eti_penalty = et_penalty1 + et_penalty2 + problem.b
         if merged_et_penalty <= two_block_eti_penalty:
             eti_penalty = merged_et_penalty
             block_lasts.append(last)
             t = merged_block_start
             for j in range(last + 1):
-                t = t + para_processing_times[jobs[j]]
+                t = t + problem.processing_times[jobs[j]]
                 end_times.append(t)
-            return block_lasts, end_times, eti_penalty, total_cplex_time
+            return block_lasts, end_times, eti_penalty
         else:
             eti_penalty = two_block_eti_penalty
-            block_lasts.append(head_last)
+            block_lasts.append(et_global_solution.block_lasts[0])
             block_lasts.append(last)
             t = block_start1
-            for j in range(head_last + 1):
-                t = t + para_processing_times[jobs[j]]
+            for j in range(et_global_solution.block_lasts[0] + 1):
+                t = t + problem.processing_times[jobs[j]]
                 end_times.append(t)
             t = block_start2
             for j in range(tail_first, last + 1):
-                t = t + para_processing_times[jobs[j]]
+                t = t + problem.processing_times[jobs[j]]
                 end_times.append(t)
-            return block_lasts, end_times, eti_penalty, total_cplex_time
+            return block_lasts, end_times, eti_penalty
     else:
         tail_start, _, block_et_penalty, cplex_time = bt.time_block(memoBT, jobs, tail_first, last, problem)
-        block_lasts1, end_times1, eti_penalty1, cplex_time = dp_Bounded(memoBT, memo_ET, memo_ETI_bounded,
-                                                                        et_global_solution, head_last, tail_first - 1,
-                                                                        jobs, last, idle_bound, problem)
-        # new lemma 4
+        block_lasts1, end_times1, eti_penalty1, _ = dp_Bounded(memoBT, memo_ET, memo_ETI_bounded,
+                                                               et_global_solution, tail_first - 1,
+                                                               jobs, last, idle_bound, problem)
+        # new lemma
         if problem.due_dates[jobs[tail_first - 1]] >= tail_start:
-            return block_lasts1, end_times1, eti_penalty1, total_cplex_time
+            return block_lasts1, end_times1, eti_penalty1
+        et_slt = et.opt_ET(memo_ET, et_global_solution, jobs, problem, tail_start - 1)
+        # # new lemma
+        if et_slt.tail_end > tail_start:
+            et_penalty_boundary, _ = et.opt_ET_with_boundary(jobs, tail_first - 1, problem, tail_start)
+            delta_et = et_penalty_boundary - et_slt.et_penalty
+            if et_slt.num_idle * problem.b < delta_et:
+                return block_lasts1, end_times1, eti_penalty1
+
         block_lasts2, end_times2, eti_penalty2, cplex_time = opt_ETI_Bounded(memoBT, memo_ET, memo_ETI_bounded,
-                                                                             et_global_solution, tail_start,
+                                                                             et_global_solution,
                                                                              idle_bound - 1, jobs,
                                                                              tail_first - 1, problem)
-        eti_penalty2 = eti_penalty2 + b + block_et_penalty
-        block_lasts2.append(last)
-        t = tail_start
-        for j in range(tail_first, last + 1):
-            t = t + para_processing_times[jobs[j]]
-            end_times2.append(t)
+        if end_times2[-1] >= tail_start:
+            block_lasts1, end_times1, eti_penalty1
+        else:
+            eti_penalty2 = eti_penalty2 + problem.b + block_et_penalty
+            block_lasts2.append(last)
+            t = tail_start
+            for j in range(tail_first, last + 1):
+                t = t + problem.processing_times[jobs[j]]
+                end_times2.append(t)
 
         if eti_penalty1 >= eti_penalty2:
-            return block_lasts2, end_times2, eti_penalty2, total_cplex_time
+            return block_lasts2, end_times2, eti_penalty2
         else:
-            return block_lasts1, end_times1, eti_penalty1, total_cplex_time
+            return block_lasts1, end_times1, eti_penalty1

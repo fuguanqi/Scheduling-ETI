@@ -42,9 +42,9 @@ def generate_problem(n, b, rho, seed=101):
 
     for i in range(n):
         due_dates.append(round(10 * n + random.random() * 10 * (n - 1), 4))
-        processing_times.append(round(random.random() * 10 * rho, 4))
-        earliness_penalties.append(2)
-        tardiness_penalties.append(3)
+        processing_times.append(round(random.random() * 20 * rho, 4))
+        earliness_penalties.append(random.random() *2)
+        tardiness_penalties.append(random.random() *3)
 
     # # The variable part of idleness penalty is absorbed by the first job and the last job.
     # earliness_penalties[0] = earliness_penalties[0] + a
