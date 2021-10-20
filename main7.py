@@ -55,7 +55,7 @@ def run8(p, seed):
     ga.run()
     end = time.process_time()
     run_time = end - start
-    f = open('GA_Bound_AB_1008.txt', 'a')
+    f = open('GA_Bound_AB_1010.txt', 'a')
     f.write(
         str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time) + "\t" + str(ga.eval_count) + "\t" + str(
             ga.memo_opt[0]) + "\t" + str(ga.memo_opt[-1]))
@@ -93,16 +93,16 @@ if __name__ == '__main__':
     # p = utils.generate_problem(n, 15, 1)
     # run3_1(p)
     # N = [6, 8, 10, 12, 14, 16, 18, 20]
-    N = [30]
+    N = [50]
     # N = [20]
-    B = [ 1000,100, 10, 1]
+    B = [1000,100, 10, 1]
     # B = [1000]
     # RHO = [0.1, 0.3, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5]
-    RHO = [ 1.7,1.9]
-    # RHO = [1.5, 1.3, 1.1, 0.9, 0.7, 0.5, 0.3, 0.1]
+    # RHO = [ 1.7,1.9]
+    RHO = [1.9,1.7,1.5, 1.3, 1.1, 0.9, 0.7, 0.5, 0.3, 0.1]
     for n in N:
-        for b in B:
-            for rho in RHO:
+        for rho in RHO:
+            for b in B:
                 for i in range(REPEAT):
                     p = utils.generate_problem(n, b, rho, seed=i)
                     # proc1 = Process(target=run6, args=(p,))
