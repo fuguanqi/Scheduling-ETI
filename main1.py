@@ -35,16 +35,16 @@ def run6(p):
     f.close()
 
 
-def run7(p,seed):
-    ga = GA.GA_Bound_A(p, seed)
+def run7(p):
+    sys.setrecursionlimit(1200)
+    ga = GA.GA_Faster_Select(p)
     start = time.process_time()
     ga.run()
     end = time.process_time()
     run_time = end - start
-    f = open('SGA_0704.txt', 'a')
-    f.write(
-        str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(min(ga.memo_opt)) + "\t" + str(run_time))
-    f.write("\n")
+    f = open('GA_Bound_B_0831.txt', 'a')
+    f.write(str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(run_time) + "\t" + str(ga.memo_opt[-1]) + "\t"
+            + str(ga.memo_opt[-5]) + "\t" + str(ga.memo_opt[- 10]) + "\n")
     f.close()
 
 
@@ -54,9 +54,9 @@ def run8(p, seed):
     ga.run()
     end = time.process_time()
     run_time = end - start
-    f = open('GA_PT_MS_0628.txt', 'a')
+    f = open('GARPT_0704.txt', 'a')
     f.write(
-        str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(min(ga.memo_opt))+"\t" + str(run_time))
+        str(p.n) + "\t" + str(p.b) + "\t" + str(p.rho) + "\t" + str(min(ga.memo_opt))+"\t" + str(ga.restart_count)+"\t" + str(run_time))
     f.write("\n")
     f.close()
 
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     # B = [1000]
     # B = [10, 100, 300, 500, 700, 900]
     # RHO = [0.1, 0.3,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.3,1.5,1.7,1.9]
-    RHO = [0.7, 0.9, 1.1]
+    RHO = [0.7, 0.9,1.1]
     for rho in RHO:
         for b in B:
             for n in N:
@@ -106,7 +106,7 @@ if __name__ == '__main__':
                     # proc1 = Process(target=run6, args=(p,))
                     # proc2 = Process(target=run7, args=(p,))
                     # proc3 = Process(target=run5, args=(p,))
-                    proc4 = Process(target=run7, args=(p, i+2))
+                    proc4 = Process(target=run8, args=(p, i+2))
                     # proc5 = Process(target=run13, args=(p,))
                     # proc6 = Process(target=run14, args=(p,))
                     # proc1.start()

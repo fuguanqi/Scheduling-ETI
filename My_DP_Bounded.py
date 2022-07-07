@@ -27,7 +27,7 @@ def opt_ETI_Bounded(memoBT, memo_ET, memo_ETI_bounded, et_global_solution, idle_
 
     block_lasts = list()
     end_times = list()
-    et_slt = et.opt_ET(memo_ET, et_global_solution, jobs, problem, last)
+    et_slt = et.opt_ET(memoBT,memo_ET, et_global_solution, jobs, problem, last)
     if et_slt.tail_first <= et_global_solution.block_lasts[0]:
         block_start, end_UB, et_penalty_UB, _ = bt.time_block(memoBT, jobs, 0, last, problem)
         eti_penalty = et_penalty_UB
@@ -99,10 +99,11 @@ def dp_Bounded(memoBT, memo_ET, memo_ETI_bounded, et_global_solution, tail_first
         # new lemma
         if problem.due_dates[jobs[tail_first - 1]] >= tail_start:
             return block_lasts1, end_times1, eti_penalty1
-        et_slt = et.opt_ET(memo_ET, et_global_solution, jobs, problem, tail_first - 1)
+        et_slt = et.opt_ET(memoBT,memo_ET, et_global_solution, jobs, problem, tail_first - 1)
         # # new lemma
         if et_slt.tail_end > tail_start:
-            et_penalty_boundary, _ = et.opt_ET_with_boundary(jobs, tail_first - 1, problem, tail_start)
+            et_penalty_boundary, _ = et.opt_ET_with_boundary(memoBT, et_global_solution, jobs, tail_first - 1, problem,
+                                                             tail_start)
             delta_et = et_penalty_boundary - et_slt.et_penalty
             if et_slt.num_idle * problem.b < delta_et:
                 return block_lasts1, end_times1, eti_penalty1

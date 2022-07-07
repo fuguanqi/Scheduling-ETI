@@ -19,11 +19,11 @@ class Sourd:
         self.problem = problem
         self.vs = []
         self.memo = []
-        head_last, tail_first, et_penalty_ET, num_idle_ET = et.opt_ET_no_memo(jobs, 0, problem.n - 1, problem)
-        _, _, ub_penalty, _ = blockTiming.time_block_no_memo(jobs, 0, problem.n - 1, problem)
-        self.idle_bound = min(num_idle_ET, math.floor(round(ub_penalty - et_penalty_ET, 4) / problem.b))
-        self.tail_first = tail_first
-        self.head_last = head_last
+        # head_last, tail_first, et_penalty_ET, num_idle_ET = et.opt_ET_no_memo(jobs, 0, problem.n - 1, problem)
+        # _, _, ub_penalty, _ = blockTiming.time_block_no_memo(jobs, 0, problem.n - 1, problem)
+        # self.idle_bound = min(num_idle_ET, math.floor(round(ub_penalty - et_penalty_ET, 4) / problem.b))
+        # self.tail_first = tail_first
+        # self.head_last = head_last
 
     def init_variable_space(self):
         for i in range(len(self.jobs)):
